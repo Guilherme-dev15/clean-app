@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.json", // <--- ESTENDE a configuração base
+  "compilerOptions": {
+    "composite": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"], // <--- Inclui tipos para APIs do navegador e iteráveis
+    "types": ["react", "react-dom"], // <--- Tipos específicos para React
+    "jsx": "react-jsx", // <--- FUNDAMENTAL para o TypeScript entender o JSX
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"] // <--- Inclui todos os arquivos da sua pasta 'src'
+}
