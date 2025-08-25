@@ -1,9 +1,11 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Permite leitura e escrita para o proprietário do userId nos seus dados
-    match /artifacts/{appId}/users/{userId}/{document=**} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+    // ATENÇÃO: Esta regra permite acesso total à sua base de dados.
+    // É segura para o emulador local, mas NUNCA deve ser usada em produção.
+    match /{document=**} {
+      allow read, write: if true;
     }
   }
 }
