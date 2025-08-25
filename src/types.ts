@@ -36,6 +36,39 @@ export interface Client {
   lastUpdated?: string;
 }
 
+// NOVO: Interface para Fornecedores
+export interface Supplier {
+  id?: string;
+  name: string;
+  contactPerson?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  paymentTerms?: string; // Ex: "30 dias", "À vista"
+}
+
+// NOVO: Interface para Itens de uma Ordem de Compra
+export interface PurchaseOrderItem {
+  productId: string;
+  productName: string;
+  quantity: number;
+  costPrice: number; // Custo por unidade na compra
+}
+
+// NOVO: Interface para Ordens de Compra
+export interface PurchaseOrder {
+  id?: string;
+  supplierId: string;
+  supplierName: string;
+  items: PurchaseOrderItem[];
+  totalAmount: number;
+  status: 'Pendente' | 'Recebida' | 'Cancelada';
+  orderDate: string; // Data do pedido
+  receivedDate?: string; // Data de recebimento
+  notes?: string;
+}
+
+
 export interface CartItem extends Product {
   quantity: number;
 }
@@ -62,7 +95,7 @@ export interface StockMovement {
   id?: string;
   productId: string;
   productName: string;
-  type: 'Venda' | 'Ajuste de Entrada' | 'Ajuste de Saída';
+  type: 'Venda' | 'Ajuste de Entrada' | 'Ajuste de Saída' | 'Compra'; // Adicionado 'Compra'
   quantity: number;
   reason: string;
   timestamp: string;

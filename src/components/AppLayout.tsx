@@ -1,14 +1,13 @@
 // src/components/AppLayout.tsx
 import { useState, useCallback, useEffect, ReactNode } from 'react';
-
 import { collection, onSnapshot } from 'firebase/firestore';
 import { useFirebase } from '../hooks/useFirebase';
-import { AppContext, AppContextType } from './AppContext'; // Importa o contexto e o tipo
+import { AppContext, AppContextType } from './AppContext';
 import Header from './Header';
 import Message from './Message';
 import Modal from './common/Modal';
 import LoadingSpinner from './common/LoadingSpinner';
-import { Product, Client } from '../types';
+import { Product, Client, Supplier } from '../types';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -17,13 +16,14 @@ interface AppLayoutProps {
 export default function AppLayout({ children }: AppLayoutProps) {
   const { userId, loading: loadingFirebase, db } = useFirebase();
   const appId = "clean-app-665c4";
-  const [activeTab, setActiveTab] = useState<string>('products');
+  const [activeTab, setActiveTab] = useState<string>('pos');
   const [message, setMessage] = useState<{ text: string; type: string } | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [modalAction, setModalAction] = useState<AppContextType['modalAction']>(null);
   const [modalData, setModalData] = useState<AppContextType['modalData']>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
   const showTemporaryMessage = useCallback((msg: string, type = 'success') => {
     setMessage({ text: msg, type });
@@ -39,6 +39,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   useEffect(() => {
     if (!db || !userId) return;
 
+    // Carregar Produtos
     const productsCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/products`);
     const unsubscribeProducts = onSnapshot(productsCollectionRef, (snapshot) => {
       const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as Product }));
@@ -48,6 +49,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       showTemporaryMessage("Erro ao carregar produtos.", "error");
     });
 
+    // Carregar Clientes
     const clientsCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/clients`);
     const unsubscribeClients = onSnapshot(clientsCollectionRef, (snapshot) => {
       const clientsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as Client }));
@@ -56,10 +58,21 @@ export default function AppLayout({ children }: AppLayoutProps) {
       console.error("Erro ao carregar clientes no AppLayout:", error);
       showTemporaryMessage("Erro ao carregar clientes.", "error");
     });
+    
+    // Carregar Fornecedores
+    const suppliersCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/suppliers`);
+    const unsubscribeSuppliers = onSnapshot(suppliersCollectionRef, (snapshot) => {
+        const suppliersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as Supplier }));
+        setSuppliers(suppliersData);
+    }, (error) => {
+        console.error("Erro ao carregar fornecedores no AppLayout:", error);
+        showTemporaryMessage("Erro ao carregar fornecedores.", "error");
+    });
 
     return () => {
       unsubscribeProducts();
       unsubscribeClients();
+      unsubscribeSuppliers();
     };
   }, [db, userId, appId, showTemporaryMessage]);
 
@@ -98,7 +111,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const handleModalConfirm = () => {
     if (modalAction && modalData) {
       if (modalData.amount !== undefined) {
-        // Assume que funções que esperam um 'amount' são de despesas
         (modalAction as (id: string, amount: number) => void)(modalData.id, modalData.amount);
       } else {
         (modalAction as (id: string) => void)(modalData.id);
@@ -121,6 +133,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
     setActiveTab,
     products,
     clients,
+    suppliers,
+    message: message,
   };
 
   return (

@@ -12,18 +12,33 @@ export default function Header() {
       </h1>
       <nav className="flex flex-wrap justify-center sm:justify-end gap-3">
         <button
+          className={`px-5 py-2 rounded-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 ${activeTab === 'pos' ? 'bg-green-600 text-white shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-green-100 hover:text-green-700'}`}
+          onClick={() => setActiveTab('pos')}
+          aria-label="Ponto de Venda"
+        >
+          PDV (Vendas)
+        </button>
+        <button
           className={`px-5 py-2 rounded-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 ${activeTab === 'products' ? 'bg-green-600 text-white shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-green-100 hover:text-green-700'}`}
           onClick={() => setActiveTab('products')}
           aria-label="Gerenciar Produtos"
         >
           Produtos
         </button>
+        {/* NOVO: Botão para Fornecedores */}
         <button
-          className={`px-5 py-2 rounded-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 ${activeTab === 'pos' ? 'bg-green-600 text-white shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-green-100 hover:text-green-700'}`}
-          onClick={() => setActiveTab('pos')}
-          aria-label="Ponto de Venda"
+          className={`px-5 py-2 rounded-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 ${activeTab === 'suppliers' ? 'bg-green-600 text-white shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-green-100 hover:text-green-700'}`}
+          onClick={() => setActiveTab('suppliers')}
+          aria-label="Gerenciar Fornecedores"
         >
-          PDV (Vendas)
+          Fornecedores
+        </button>
+        <button
+          className={`px-5 py-2 rounded-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 ${activeTab === 'clients' ? 'bg-green-600 text-white shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-green-100 hover:text-green-700'}`}
+          onClick={() => setActiveTab('clients')}
+          aria-label="Gerenciar Clientes"
+        >
+          Clientes (CRM)
         </button>
         <button
           className={`px-5 py-2 rounded-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 ${activeTab === 'expenses' ? 'bg-green-600 text-white shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-green-100 hover:text-green-700'}`}
@@ -38,13 +53,6 @@ export default function Header() {
           aria-label="Ver Fluxo de Caixa"
         >
           Fluxo de Caixa
-        </button>
-        <button
-          className={`px-5 py-2 rounded-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 ${activeTab === 'clients' ? 'bg-green-600 text-white shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-green-100 hover:text-green-700'}`}
-          onClick={() => setActiveTab('clients')}
-          aria-label="Gerenciar Clientes"
-        >
-          Clientes (CRM)
         </button>
         <button
           className={`px-5 py-2 rounded-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 ${activeTab === 'reports' ? 'bg-green-600 text-white shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-green-100 hover:text-green-700'}`}

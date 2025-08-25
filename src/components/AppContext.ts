@@ -1,17 +1,11 @@
 // src/components/AppContext.ts
 import { createContext, useContext } from 'react';
 import type { Firestore } from 'firebase/firestore';
-import { Product, Client } from '../types';
+// NOVO: Importar o tipo Supplier
+import { Product, Client, Supplier } from '../types';
 
 type ModalAction = ((id: string, amount?: number) => Promise<void> | void) | null;
 type ModalData = { id: string; amount?: number } | null;
-
-
-
-
-
-
-
 
 export interface AppContextType {
   db: Firestore | null;
@@ -27,6 +21,8 @@ export interface AppContextType {
   setActiveTab: (tab: string) => void;
   products: Product[];
   clients: Client[];
+  // NOVO: Adicionar suppliers ao contexto
+  suppliers: Supplier[];
   message: { text: string; type: string } | null;
 }
 
