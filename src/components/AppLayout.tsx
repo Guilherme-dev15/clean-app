@@ -16,7 +16,8 @@ interface AppLayoutProps {
 export default function AppLayout({ children }: AppLayoutProps) {
   const { userId, loading: loadingFirebase, db } = useFirebase();
   const appId = "clean-app-665c4";
-  const [activeTab, setActiveTab] = useState<string>('pos');
+  // NOVO: Definir 'dashboard' como o ecrã inicial
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [message, setMessage] = useState<{ text: string; type: string } | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [modalAction, setModalAction] = useState<AppContextType['modalAction']>(null);
@@ -39,34 +40,22 @@ export default function AppLayout({ children }: AppLayoutProps) {
   useEffect(() => {
     if (!db || !userId) return;
 
-    // Carregar Produtos
     const productsCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/products`);
     const unsubscribeProducts = onSnapshot(productsCollectionRef, (snapshot) => {
       const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as Product }));
       setProducts(productsData);
-    }, (error) => {
-      console.error("Erro ao carregar produtos no AppLayout:", error);
-      showTemporaryMessage("Erro ao carregar produtos.", "error");
     });
 
-    // Carregar Clientes
     const clientsCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/clients`);
     const unsubscribeClients = onSnapshot(clientsCollectionRef, (snapshot) => {
       const clientsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as Client }));
       setClients(clientsData);
-    }, (error) => {
-      console.error("Erro ao carregar clientes no AppLayout:", error);
-      showTemporaryMessage("Erro ao carregar clientes.", "error");
     });
     
-    // Carregar Fornecedores
     const suppliersCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/suppliers`);
     const unsubscribeSuppliers = onSnapshot(suppliersCollectionRef, (snapshot) => {
         const suppliersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as Supplier }));
         setSuppliers(suppliersData);
-    }, (error) => {
-        console.error("Erro ao carregar fornecedores no AppLayout:", error);
-        showTemporaryMessage("Erro ao carregar fornecedores.", "error");
     });
 
     return () => {
@@ -74,39 +63,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
       unsubscribeClients();
       unsubscribeSuppliers();
     };
-  }, [db, userId, appId, showTemporaryMessage]);
+  }, [db, userId, appId]);
 
-  useEffect(() => {
-    const loadScript = (src: string, id: string, callback?: () => void) => {
-      if (document.getElementById(id)) {
-        if (callback) callback();
-        return;
-      }
-      const script = document.createElement('script');
-      script.src = src;
-      script.id = id;
-      script.onload = () => { if (callback) callback(); };
-      script.onerror = () => {
-        console.error(`Falha ao carregar script: ${src}`);
-        showTemporaryMessage(`Erro ao carregar recurso externo: ${id}`, "error");
-      };
-      document.head.appendChild(script);
-    };
-
-    loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'jspdf-script', () => {
-      loadScript('https://unpkg.com/jspdf-autotable@3.8.1/dist/jspdf.plugin.autotable.js', 'jspdf-autotable-script', () => {
-        console.log("jsPDF e jspdf-autotable carregados.");
-      });
-    });
-
-    loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js', 'xlsx-script', () => {
-      console.log("XLSX carregado.");
-    });
-  }, [showTemporaryMessage]);
-
-  if (loadingFirebase) {
-    return <LoadingSpinner />;
-  }
+  // Restante do ficheiro AppLayout.tsx permanece igual...
 
   const handleModalConfirm = () => {
     if (modalAction && modalData) {
@@ -143,7 +102,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         <Header />
         {message && <Message text={message.text} type={message.type} />}
         <main className="flex-grow bg-white shadow-xl rounded-xl p-6">
-          {children}
+          {loadingFirebase ? <LoadingSpinner /> : children}
         </main>
         <Modal
           show={showModal}

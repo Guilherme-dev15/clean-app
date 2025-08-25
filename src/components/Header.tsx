@@ -11,6 +11,14 @@ export default function Header() {
         Limpeza Fácil 🧼
       </h1>
       <nav className="flex flex-wrap justify-center sm:justify-end gap-3">
+        {/* NOVO: Botão do Dashboard */}
+        <button
+          className={`px-5 py-2 rounded-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 ${activeTab === 'dashboard' ? 'bg-green-600 text-white shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-green-100 hover:text-green-700'}`}
+          onClick={() => setActiveTab('dashboard')}
+          aria-label="Ver Dashboard"
+        >
+          Dashboard
+        </button>
         <button
           className={`px-5 py-2 rounded-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 ${activeTab === 'pos' ? 'bg-green-600 text-white shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-green-100 hover:text-green-700'}`}
           onClick={() => setActiveTab('pos')}
@@ -25,7 +33,6 @@ export default function Header() {
         >
           Produtos
         </button>
-        {/* NOVO: Botão para Fornecedores */}
         <button
           className={`px-5 py-2 rounded-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 ${activeTab === 'suppliers' ? 'bg-green-600 text-white shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-green-100 hover:text-green-700'}`}
           onClick={() => setActiveTab('suppliers')}

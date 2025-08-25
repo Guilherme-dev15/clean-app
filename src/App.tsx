@@ -8,17 +8,19 @@ import ExpensesManager from './components/ExpensesManager';
 import CashFlow from './components/CashFlow';
 import ClientsManager from './components/ClientsManager';
 import Reports from './components/Reports';
-// NOVO: Importar o novo componente
 import SuppliersManager from './components/SuppliersManager';
+// NOVO: Importar o Dashboard
+import Dashboard from './components/Dashboard';
 
 function MainContent() {
   const { activeTab } = useApp();
 
   return (
     <>
+      {/* NOVO: Renderizar o Dashboard */}
+      {activeTab === 'dashboard' && <Dashboard />}
       {activeTab === 'pos' && <POS />}
       {activeTab === 'products' && <ProductManager />}
-      {/* NOVO: Renderizar o componente de fornecedores */}
       {activeTab === 'suppliers' && <SuppliersManager />}
       {activeTab === 'clients' && <ClientsManager />}
       {activeTab === 'expenses' && <ExpensesManager />}
