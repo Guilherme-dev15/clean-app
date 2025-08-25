@@ -16,7 +16,6 @@ interface AppLayoutProps {
 export default function AppLayout({ children }: AppLayoutProps) {
   const { userId, loading: loadingFirebase, db } = useFirebase();
   const appId = "clean-app-665c4";
-  // NOVO: Definir 'dashboard' como o ecrã inicial
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [message, setMessage] = useState<{ text: string; type: string } | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -65,7 +64,35 @@ export default function AppLayout({ children }: AppLayoutProps) {
     };
   }, [db, userId, appId]);
 
-  // Restante do ficheiro AppLayout.tsx permanece igual...
+  useEffect(() => {
+    const loadScript = (src: string, id: string, callback?: () => void) => {
+      if (document.getElementById(id)) {
+        if (callback) callback();
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = src;
+      script.id = id;
+      script.onload = () => { if (callback) callback(); };
+      script.onerror = () => {
+        console.error(`Falha ao carregar script: ${src}`);
+        showTemporaryMessage(`Erro ao carregar recurso externo: ${id}`, "error");
+      };
+      document.head.appendChild(script);
+    };
+
+    loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'jspdf-script', () => {
+      loadScript('https://unpkg.com/jspdf-autotable@3.8.1/dist/jspdf.plugin.autotable.js', 'jspdf-autotable-script');
+    });
+
+    loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js', 'xlsx-script');
+    
+    // REMOVIDO: A linha que carregava o Recharts foi removida.
+  }, [showTemporaryMessage]);
+
+  if (loadingFirebase) {
+    return <LoadingSpinner />;
+  }
 
   const handleModalConfirm = () => {
     if (modalAction && modalData) {
