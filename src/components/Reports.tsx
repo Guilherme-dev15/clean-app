@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect } from 'react';
-// NOVO: Importar componentes de gráficos diretamente da biblioteca
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 // CORREÇÃO: Os caminhos de importação foram ajustados para garantir a resolução correta dos módulos.
 import { useApp } from './AppContext';
@@ -16,14 +15,15 @@ export default function Reports() {
     stockMovementsReport, 
     totalReportSales, totalReportCostOfGoods, totalReportExpenses, 
     generateReports,
-    salesByDay, topSellingProducts
+    salesByDay, topSellingProducts,
+    productProfitability, topCustomers // NOVO: Obter dados dos novos relatórios
   } = useReports();
   
   const { clients, showTemporaryMessage } = useApp();
 
   const exportToPdf = (tableId: string, fileName: string) => {
     if (typeof (window as any).jsPDF === 'undefined' || typeof (window as any).jspdf?.plugin?.autotable === 'undefined') {
-      showTemporaryMessage("Bibliotecas PDF não carregadas. Tente novamente em alguns segundos.", "error");
+      showTemporaryMessage("Bibliotecas PDF não carregadas. Tente novamente.", "error");
       return;
     }
     const doc = new (window as any).jsPDF.jsPDF();
@@ -47,65 +47,39 @@ export default function Reports() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reportStartDate, reportEndDate]);
 
+  const netProfit = totalReportSales - totalReportCostOfGoods - totalReportExpenses;
+
   return (
     <section>
       <h2 className="text-3xl font-bold text-gray-800 mb-6 border-b-2 pb-2 border-green-300">
-        Relatórios Detalhados
+        Relatórios de Gestão
       </h2>
+      
+      {/* Filtro de Período */}
       <div className="bg-gray-50 p-6 rounded-lg shadow-inner mb-6">
-        <h3 className="text-2xl font-semibold text-gray-800 mb-4">
-          Filtro por Período
-        </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+          {/* Inputs de Data */}
           <div>
-            <label htmlFor="reportStartDate" className="block text-gray-700 text-sm font-semibold mb-2">
-              Data de Início:
-            </label>
-            <input
-              type="date"
-              id="reportStartDate"
-              value={reportStartDate}
-              onChange={(e) => setReportStartDate(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-400"
-            />
+            <label htmlFor="reportStartDate" className="block text-gray-700 text-sm font-semibold mb-2">Data de Início:</label>
+            <input type="date" id="reportStartDate" value={reportStartDate} onChange={(e) => setReportStartDate(e.target.value)} className="w-full p-3 border rounded-md"/>
           </div>
           <div>
-            <label htmlFor="reportEndDate" className="block text-gray-700 text-sm font-semibold mb-2">
-              Data de Fim:
-            </label>
-            <input
-              type="date"
-              id="reportEndDate"
-              value={reportEndDate}
-              onChange={(e) => setReportEndDate(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-400"
-            />
+            <label htmlFor="reportEndDate" className="block text-gray-700 text-sm font-semibold mb-2">Data de Fim:</label>
+            <input type="date" id="reportEndDate" value={reportEndDate} onChange={(e) => setReportEndDate(e.target.value)} className="w-full p-3 border rounded-md"/>
           </div>
-          <button
-            onClick={generateReports}
-            className="w-full bg-indigo-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-indigo-600"
-          >
-            Gerar Relatórios
-          </button>
+          <button onClick={generateReports} className="w-full bg-indigo-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-indigo-600">Gerar Relatórios</button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div className="bg-white p-6 rounded-lg shadow-md text-center">
-          <h4 className="text-xl font-semibold text-green-800 mb-2">Total de Vendas</h4>
-          <p className="text-3xl font-bold text-green-600">R$ {totalReportSales.toFixed(2)}</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-md text-center">
-          <h4 className="text-xl font-semibold text-red-800 mb-2">Total de Despesas</h4>
-          <p className="text-3xl font-bold text-red-600">R$ {totalReportExpenses.toFixed(2)}</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-md text-center">
-          <h4 className="text-xl font-semibold text-purple-800 mb-2">Lucro Bruto</h4>
-          <p className="text-3xl font-bold text-purple-600">R$ {(totalReportSales - totalReportCostOfGoods).toFixed(2)}</p>
-          <p className="text-sm text-gray-500">(Vendas - Custo dos Produtos)</p>
-        </div>
+      {/* Cartões de Resumo */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <div className="bg-white p-6 rounded-lg shadow-md text-center"><h4 className="text-xl font-semibold text-green-800 mb-2">Total de Vendas</h4><p className="text-3xl font-bold text-green-600">R$ {totalReportSales.toFixed(2)}</p></div>
+        <div className="bg-white p-6 rounded-lg shadow-md text-center"><h4 className="text-xl font-semibold text-orange-800 mb-2">Custo dos Produtos</h4><p className="text-3xl font-bold text-orange-600">R$ {totalReportCostOfGoods.toFixed(2)}</p></div>
+        <div className="bg-white p-6 rounded-lg shadow-md text-center"><h4 className="text-xl font-semibold text-red-800 mb-2">Total de Despesas</h4><p className="text-3xl font-bold text-red-600">R$ {totalReportExpenses.toFixed(2)}</p></div>
+        <div className={`p-6 rounded-lg shadow-md text-center ${netProfit >= 0 ? 'bg-green-100' : 'bg-red-100'}`}><h4 className="text-xl font-semibold text-blue-800 mb-2">Lucro Líquido</h4><p className={`text-3xl font-bold ${netProfit >= 0 ? 'text-blue-600' : 'text-red-700'}`}>R$ {netProfit.toFixed(2)}</p></div>
       </div>
 
+      {/* Gráficos Visuais */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h3 className="text-xl font-semibold text-gray-800 mb-4">Evolução das Vendas no Período</h3>
@@ -135,79 +109,86 @@ export default function Reports() {
         </div>
       </div>
 
+      {/* NOVO: Tabela de Lucratividade por Produto */}
       <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-        <h3 className="text-2xl font-semibold text-gray-800 mb-4">
-          Relatório de Vendas
-          <div className="inline-flex gap-2 ml-4">
-            <button onClick={() => exportToPdf('salesTable', 'Relatorio_Vendas')} className="bg-red-500 text-white px-3 py-1 rounded-md text-sm hover:bg-red-600">PDF</button>
-            <button onClick={() => exportToXlsx(salesReportData.map((s: Sale) => ({
-              Data: new Date(s.timestamp).toLocaleDateString(),
-              Cliente: clients.find((c: Client) => c.id === s.clientId)?.name || 'N/A',
-              Itens: s.items.map((item: SaleItem) => `${item.name} (x${item.quantity})`).join(', '),
-              MetodoPagamento: s.paymentMethod,
-              Total: s.total.toFixed(2)
-            })), 'Relatorio_Vendas')} className="bg-green-500 text-white px-3 py-1 rounded-md text-sm hover:bg-green-600">XLSX</button>
-          </div>
-        </h3>
+        <h3 className="text-2xl font-semibold text-gray-800 mb-4">Lucratividade por Produto</h3>
         <div className="overflow-x-auto">
-          <table id="salesTable" className="min-w-full bg-white rounded-lg overflow-hidden">
+          <table id="productProfitabilityTable" className="min-w-full bg-white">
             <thead className="bg-gray-100">
               <tr>
-                <th className="py-2 px-4 text-left text-gray-600 font-semibold">Data</th>
-                <th className="py-2 px-4 text-left text-gray-600 font-semibold">Cliente</th>
-                <th className="py-2 px-4 text-left text-gray-600 font-semibold">Itens</th>
-                <th className="py-2 px-4 text-left text-gray-600 font-semibold">Método Pag.</th>
-                <th className="py-2 px-4 text-right text-gray-600 font-semibold">Total</th>
+                <th className="py-2 px-4 text-left">Produto</th>
+                <th className="py-2 px-4 text-right">Qtd. Vendida</th>
+                <th className="py-2 px-4 text-right">Receita Total</th>
+                <th className="py-2 px-4 text-right">Lucro Total</th>
+                <th className="py-2 px-4 text-right">Margem</th>
               </tr>
             </thead>
             <tbody>
-              {salesReportData.map(sale => (
-                <tr key={sale.id} className="border-b border-gray-200 hover:bg-gray-50">
-                  <td className="py-2 px-4 text-sm text-gray-800">{new Date(sale.timestamp).toLocaleDateString()}</td>
-                  <td className="py-2 px-4 text-sm text-gray-800">{clients.find((c: Client) => c.id === sale.clientId)?.name || 'N/A'}</td>
-                  <td className="py-2 px-4 text-sm text-gray-800">
-                    {sale.items.map((item: SaleItem) => `${item.name} (x${item.quantity})`).join(', ')}
-                  </td>
-                  <td className="py-2 px-4 text-sm text-gray-800">{sale.paymentMethod}</td>
-                  <td className="py-2 px-4 text-sm text-gray-800 text-right">R$ {sale.total.toFixed(2)}</td>
+              {productProfitability.map(p => (
+                <tr key={p.productId} className="border-b">
+                  <td className="py-2 px-4 font-medium">{p.name}</td>
+                  <td className="py-2 px-4 text-right">{p.quantitySold}</td>
+                  <td className="py-2 px-4 text-right">R$ {p.totalRevenue.toFixed(2)}</td>
+                  <td className={`py-2 px-4 text-right font-bold ${p.totalProfit > 0 ? 'text-green-600' : 'text-red-600'}`}>R$ {p.totalProfit.toFixed(2)}</td>
+                  <td className={`py-2 px-4 text-right ${p.profitMargin > 20 ? 'text-green-600' : 'text-orange-500'}`}>{p.profitMargin.toFixed(1)}%</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
-      
+
+      {/* NOVO: Tabela de Análise de Clientes */}
       <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-        <h3 className="text-2xl font-semibold text-gray-800 mb-4">
-          Relatório de Despesas
-          <div className="inline-flex gap-2 ml-4">
-            <button onClick={() => exportToPdf('expensesTable', 'Relatorio_Despesas')} className="bg-red-500 text-white px-3 py-1 rounded-md text-sm hover:bg-red-600">PDF</button>
-            <button onClick={() => exportToXlsx(expensesReportData.map((e: Expense) => ({
-              Data: new Date(e.timestamp!).toLocaleDateString(),
-              Descricao: e.description,
-              Valor: e.amount.toFixed(2)
-            })), 'Relatorio_Despesas')} className="bg-green-500 text-white px-3 py-1 rounded-md text-sm hover:bg-green-600">XLSX</button>
-          </div>
-        </h3>
+        <h3 className="text-2xl font-semibold text-gray-800 mb-4">Análise de Clientes</h3>
         <div className="overflow-x-auto">
-          <table id="expensesTable" className="min-w-full bg-white rounded-lg overflow-hidden">
+          <table id="topCustomersTable" className="min-w-full bg-white">
             <thead className="bg-gray-100">
               <tr>
-                <th className="py-2 px-4 text-left text-gray-600 font-semibold">Data</th>
-                <th className="py-2 px-4 text-left text-gray-600 font-semibold">Descrição</th>
-                <th className="py-2 px-4 text-right text-gray-600 font-semibold">Valor</th>
+                <th className="py-2 px-4 text-left">Cliente</th>
+                <th className="py-2 px-4 text-right">Nº de Compras</th>
+                <th className="py-2 px-4 text-right">Total Gasto</th>
               </tr>
             </thead>
             <tbody>
-              {expensesReportData.map(expense => (
-                <tr key={expense.id} className="border-b border-gray-200 hover:bg-gray-50">
-                  <td className="py-2 px-4 text-sm text-gray-800">{new Date(expense.timestamp ?? '').toLocaleDateString()}</td>
-                  <td className="py-2 px-4 text-sm text-gray-800">{expense.description}</td>
-                  <td className="py-2 px-4 text-sm text-gray-800 text-right">R$ {expense.amount.toFixed(2)}</td>
+              {topCustomers.map(c => (
+                <tr key={c.clientId} className="border-b">
+                  <td className="py-2 px-4 font-medium">{c.name}</td>
+                  <td className="py-2 px-4 text-right">{c.purchaseCount}</td>
+                  <td className="py-2 px-4 text-right font-bold text-blue-600">R$ {c.totalSpent.toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Tabelas Originais */}
+      <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+        <h3 className="text-2xl font-semibold text-gray-800 mb-4">Relatório de Vendas Detalhado</h3>
+        <div className="overflow-x-auto">
+            <table id="salesTable" className="min-w-full bg-white">
+                <thead className="bg-gray-100">
+                    <tr>
+                        <th className="py-2 px-4 text-left">Data</th>
+                        <th className="py-2 px-4 text-left">Cliente</th>
+                        <th className="py-2 px-4 text-left">Itens</th>
+                        <th className="py-2 px-4 text-left">Método Pag.</th>
+                        <th className="py-2 px-4 text-right">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {salesReportData.map(sale => (
+                        <tr key={sale.id} className="border-b">
+                            <td className="py-2 px-4">{new Date(sale.timestamp).toLocaleDateString()}</td>
+                            <td className="py-2 px-4">{clients.find(c => c.id === sale.clientId)?.name || 'N/A'}</td>
+                            <td className="py-2 px-4">{sale.items.map(i => `${i.name} (x${i.quantity})`).join(', ')}</td>
+                            <td className="py-2 px-4">{sale.paymentMethod}</td>
+                            <td className="py-2 px-4 text-right">R$ {sale.total.toFixed(2)}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
       </div>
     </section>
