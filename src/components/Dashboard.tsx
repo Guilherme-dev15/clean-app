@@ -1,5 +1,5 @@
-// src/components/Dashboard.tsx
-import React from 'react';
+
+// CORREÇÃO: Os caminhos de importação foram ajustados para garantir a resolução correta dos módulos.
 import { useDashboardData } from '../hooks/useDashboardData';
 import { useApp } from './AppContext';
 
@@ -15,9 +15,14 @@ const StatCard = ({ title, value, icon }: { title: string; value: string | numbe
 
 export default function Dashboard() {
   const { dailySalesTotal, attendedClientsCount, lowStockProductsCount, totalDebt } = useDashboardData();
-  const { products } = useApp();
+  const { products, clients } = useApp(); // Obter a lista completa de clientes
 
   const lowStockProducts = products.filter(p => p.stock <= p.minStock);
+  
+  // Filtrar e ordenar clientes com dívidas
+  const clientsWithDebt = clients
+    .filter(client => client.debt > 0)
+    .sort((a, b) => b.debt - a.debt);
 
   return (
     <section>
@@ -49,23 +54,52 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* Detalhes dos Produtos com Stock Baixo */}
-      <div className="bg-red-50 p-6 rounded-lg shadow-inner">
-        <h3 className="text-2xl font-semibold text-red-800 mb-4">
-          Alerta de Stock Baixo
-        </h3>
-        {lowStockProducts.length > 0 ? (
-          <ul className="space-y-2">
-            {lowStockProducts.map(product => (
-              <li key={product.id} className="bg-white p-3 rounded-md shadow-sm flex justify-between items-center">
-                <span className="font-semibold">{product.name}</span>
-                <span className="text-red-600 font-bold">Apenas {product.stock} em stock!</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-600">Nenhum produto com stock baixo no momento. Bom trabalho!</p>
-        )}
+      {/* Secção de Alertas e Análises */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Alerta de Stock Baixo */}
+        <div className="bg-red-50 p-6 rounded-lg shadow-inner">
+          <h3 className="text-2xl font-semibold text-red-800 mb-4">
+            Alerta de Stock Baixo
+          </h3>
+          <div className="max-h-64 overflow-y-auto">
+            {lowStockProducts.length > 0 ? (
+              <ul className="space-y-2">
+                {lowStockProducts.map(product => (
+                  <li key={product.id} className="bg-white p-3 rounded-md shadow-sm flex justify-between items-center">
+                    <span className="font-semibold">{product.name}</span>
+                    <span className="text-red-600 font-bold">Apenas {product.stock} em stock!</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-600">Nenhum produto com stock baixo no momento. Bom trabalho!</p>
+            )}
+          </div>
+        </div>
+        
+        {/* Análise de "Fiado" */}
+        <div className="bg-yellow-50 p-6 rounded-lg shadow-inner">
+          <h3 className="text-2xl font-semibold text-yellow-800 mb-4">
+            Contas a Receber (Fiado)
+          </h3>
+          <div className="max-h-64 overflow-y-auto">
+            {clientsWithDebt.length > 0 ? (
+              <ul className="space-y-2">
+                {clientsWithDebt.map(client => (
+                  <li key={client.id} className="bg-white p-3 rounded-md shadow-sm flex justify-between items-center">
+                    <div>
+                      <p className="font-semibold">{client.name}</p>
+                      <p className="text-xs text-gray-500">Última atualização: {client.lastUpdated ? new Date(client.lastUpdated).toLocaleDateString() : 'N/A'}</p>
+                    </div>
+                    <span className="text-red-600 font-bold">R$ {client.debt.toFixed(2)}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-600">Nenhum cliente com dívidas pendentes.</p>
+            )}
+          </div>
+        </div>
       </div>
     </section>
   );

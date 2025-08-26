@@ -1,5 +1,5 @@
 // src/components/ExpensesManager.tsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useApp } from '../components/AppContext';
 import { addDoc, collection, deleteDoc, doc, getDoc, updateDoc, setDoc, DocumentData } from 'firebase/firestore'; 
 import { useData } from '../hooks/useData';

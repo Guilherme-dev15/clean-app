@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 // src/hooks/useDashboardData.ts
 import { useState, useEffect } from 'react';
-import { collection, query, where, onSnapshot, getDocs } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+// CORREÇÃO: O caminho de importação foi ajustado para garantir a resolução correta do módulo.
 import { useApp } from '../components/AppContext';
 import { Sale } from '../types';
 

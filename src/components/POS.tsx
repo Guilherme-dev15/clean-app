@@ -1,19 +1,19 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import React, { useState } from 'react';
-// CORREÇÃO: O caminho de importação foi ajustado para garantir a resolução correta pelo compilador.
-import { useApp } from '../components/AppContext';
+// CORREÇÃO: Os caminhos de importação foram ajustados para garantir a resolução correta dos módulos.
+import { useApp } from './AppContext';
 import { collection, doc, getDoc, getDocFromCache, writeBatch, DocumentData, DocumentSnapshot } from 'firebase/firestore';
-import { CartItem, Sale, StockMovement, Product } from '../types';
+import { CartItem, Sale, StockMovement, Product, Client } from '../types';
+import Spinner from './common/Spinner';
 
 export default function POS() {
-  // Hooks e estado do componente, sem alterações na sua estrutura.
   const { db, userId, appId, showTemporaryMessage, products, clients } = useApp();
+
   const [cart, setCart] = useState<CartItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<string>('Dinheiro');
   const [selectedClientForSale, setSelectedClientForSale] = useState<string>('');
   const [isProcessingSale, setIsProcessingSale] = useState<boolean>(false);
-
-  // As funções de manipulação do carrinho (adicionar, remover, atualizar) permanecem as mesmas.
-  // Elas já estão funcionando corretamente.
 
   const addToCart = (product: Product) => {
     if (product.stock === 0) {
@@ -60,19 +60,13 @@ export default function POS() {
     return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   };
 
-  /**
-   * Lógica de Checkout Refatorada e Corrigida
-   * * A principal mudança está na robustez da leitura do 'cash_register_summary' e na clareza
-   * do fluxo de operações atômicas com o 'writeBatch'.
-   */
   const handleCheckout = async () => {
-    // 1. Validações iniciais (carrinho, conexão, cliente para 'Fiado')
     if (cart.length === 0) {
       showTemporaryMessage("O carrinho está vazio.", "error");
       return;
     }
     if (!db || !userId) {
-      showTemporaryMessage("Erro de conexão. A aplicação não está pronta.", "error");
+      showTemporaryMessage("Erro de conexão. Faça login novamente.", "error");
       return;
     }
     if (paymentMethod === 'Fiado' && !selectedClientForSale) {
@@ -83,122 +77,112 @@ export default function POS() {
     setIsProcessingSale(true);
 
     try {
-      // 2. Validações de consistência de dados (estoque e cliente) antes de iniciar o batch
-      for (const item of cart) {
-        const productInState = products.find(p => p.id === item.id);
-        if (!productInState) {
-          throw new Error(`Produto ${item.name} não foi encontrado nos dados locais.`);
+        for (const item of cart) {
+            const productInState = products.find(p => p.id === item.id);
+            if (!productInState) {
+                throw new Error(`Produto ${item.name} não foi encontrado nos dados locais.`);
+            }
+            if (productInState.stock < item.quantity) {
+                throw new Error(`Estoque insuficiente para ${item.name}. Atual: ${productInState.stock}, Pedido: ${item.quantity}.`);
+            }
         }
-        if (productInState.stock < item.quantity) {
-          throw new Error(`Estoque insuficiente para ${item.name}. Atual: ${productInState.stock}, Pedido: ${item.quantity}.`);
+
+        const clientInState = clients.find(c => c.id === selectedClientForSale);
+        if (paymentMethod === 'Fiado' && !clientInState) {
+            throw new Error(`Cliente selecionado para venda 'Fiado' não foi encontrado.`);
         }
-      }
 
-      const clientInState = clients.find(c => c.id === selectedClientForSale);
-      if (paymentMethod === 'Fiado' && !clientInState) {
-        throw new Error(`Cliente selecionado para venda 'Fiado' não foi encontrado.`);
-      }
+        const today = new Date().toISOString().split('T')[0];
+        const cashRegisterDocRef = doc(db, `artifacts/${appId}/users/${userId}/cash_register_summary`, today);
+        let cashRegisterDoc: DocumentSnapshot<DocumentData> | undefined;
 
-      // 3. [CORREÇÃO] Leitura segura do registro de caixa diário com fallback para o cache
-      const today = new Date().toISOString().split('T')[0];
-      const cashRegisterDocRef = doc(db, `artifacts/${appId}/users/${userId}/cash_register_summary`, today);
-      let cashRegisterDoc: DocumentSnapshot<DocumentData> | undefined;
-
-      try {
-        cashRegisterDoc = await getDoc(cashRegisterDocRef);
-      } catch (onlineError) {
-        console.warn('Falha na busca online do caixa. Tentando ler do cache local...', onlineError);
         try {
-          cashRegisterDoc = await getDocFromCache(cashRegisterDocRef);
-        } catch (cacheError) {
-          console.error("Erro ao ler o caixa do cache:", cacheError);
-          throw new Error('Não foi possível acessar os dados do caixa. A venda não pode ser concluída.');
+            cashRegisterDoc = await getDoc(cashRegisterDocRef);
+        } catch (onlineError) {
+            console.warn('Falha na busca online do caixa. Tentando ler do cache local...', onlineError);
+            try {
+                cashRegisterDoc = await getDocFromCache(cashRegisterDocRef);
+            } catch (cacheError) {
+                console.error("Erro ao ler o caixa do cache:", cacheError);
+                throw new Error('Não foi possível acessar os dados do caixa. A venda não pode ser concluída.');
+            }
         }
-      }
       
-      // 4. Inicia a transação em lote para garantir a atomicidade das operações
-      const batch = writeBatch(db);
-      const total = calculateTotal();
-      
-      const saleData: Sale = {
-        timestamp: new Date().toISOString(),
-        items: cart.map(item => ({
-          productId: item.id!,
-          name: item.name,
-          price: item.price,
-          costPrice: item.costPrice,
-          quantity: item.quantity
-        })),
-        total: total,
-        paymentMethod: paymentMethod,
-        userId: userId!,
-        clientId: selectedClientForSale || null
-      };
-      
-      const salesCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/sales`);
-      const newSaleDocRef = doc(salesCollectionRef);
-      batch.set(newSaleDocRef, saleData as DocumentData);
-
-      // 5. Adiciona as atualizações de estoque e registros de movimentação ao lote
-      for (const item of cart) {
-        const productRef = doc(db, `artifacts/${appId}/users/${userId}/products`, item.id!);
-        const productInState = products.find(p => p.id === item.id)!;
-        const newStock = productInState.stock - item.quantity;
-        batch.update(productRef, { stock: newStock });
-
-        const stockMovementData: StockMovement = {
-          productId: item.id!,
-          productName: item.name,
-          type: 'Venda',
-          quantity: item.quantity,
-          reason: `Venda ID: ${newSaleDocRef.id}`,
+        const batch = writeBatch(db);
+        const total = calculateTotal();
+        
+        const saleData: Sale = {
           timestamp: new Date().toISOString(),
-          userId: userId!
+          items: cart.map(item => ({
+            productId: item.id!,
+            name: item.name,
+            price: item.price,
+            costPrice: item.costPrice,
+            quantity: item.quantity
+          })),
+          total: total,
+          paymentMethod: paymentMethod,
+          userId: userId!,
+          clientId: selectedClientForSale || null
         };
-        const stockMovementRef = doc(collection(db, `artifacts/${appId}/users/${userId}/stock_movements`));
-        batch.set(stockMovementRef, stockMovementData as DocumentData);
-      }
+        
+        const salesCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/sales`);
+        const newSaleDocRef = doc(salesCollectionRef);
+        batch.set(newSaleDocRef, saleData as DocumentData);
 
-      // 6. [CORREÇÃO] Atualiza ou cria o resumo do caixa de forma segura
-      // Usamos 'cashRegisterDoc?.exists()' para evitar erros caso a leitura falhe e retorne undefined.
-      if (cashRegisterDoc?.exists()) {
-        const currentData = cashRegisterDoc.data();
-        const currentSalesTotal = currentData.salesTotal || 0;
-        batch.update(cashRegisterDocRef, { salesTotal: currentSalesTotal + total });
-      } else {
-        batch.set(cashRegisterDocRef, {
-          date: today,
-          salesTotal: total,
-          expensesTotal: 0,
-          userId: userId!
-        } as DocumentData);
-      }
+        for (const item of cart) {
+            const productRef = doc(db, `artifacts/${appId}/users/${userId}/products`, item.id!);
+            const productInState = products.find(p => p.id === item.id)!;
+            const newStock = productInState.stock - item.quantity;
+            batch.update(productRef, { stock: newStock });
 
-      // 7. Se a venda for 'Fiado', atualiza a dívida do cliente
-      if (paymentMethod === 'Fiado' && clientInState) {
-        const clientRef = doc(db, `artifacts/${appId}/users/${userId}/clients`, clientInState.id!);
-        const currentDebt = clientInState.debt || 0;
-        batch.update(clientRef, { debt: currentDebt + total });
-      }
+            const stockMovementData: StockMovement = {
+                productId: item.id!,
+                productName: item.name,
+                type: 'Venda',
+                quantity: item.quantity,
+                reason: `Venda ID: ${newSaleDocRef.id}`,
+                timestamp: new Date().toISOString(),
+                userId: userId!
+            };
+            const stockMovementRef = doc(collection(db, `artifacts/${appId}/users/${userId}/stock_movements`));
+            batch.set(stockMovementRef, stockMovementData as DocumentData);
+        }
+
+        if (cashRegisterDoc?.exists()) {
+            const currentData = cashRegisterDoc.data();
+            const currentSalesTotal = currentData.salesTotal || 0;
+            batch.update(cashRegisterDocRef, { salesTotal: currentSalesTotal + total });
+        } else {
+            batch.set(cashRegisterDocRef, {
+                date: today,
+                salesTotal: total,
+                expensesTotal: 0,
+                userId: userId!
+            } as DocumentData);
+        }
+
+        if (paymentMethod === 'Fiado' && clientInState) {
+            const clientRef = doc(db, `artifacts/${appId}/users/${userId}/clients`, clientInState.id!);
+            const currentDebt = clientInState.debt || 0;
+            batch.update(clientRef, { debt: currentDebt + total });
+        }
       
-      // 8. Executa todas as operações em lote de uma só vez
-      await batch.commit();
+        await batch.commit();
 
-      // 9. Limpa o estado e informa o sucesso
-      showTemporaryMessage("Venda finalizada com sucesso! 💰", "success");
-      setCart([]);
-      setSelectedClientForSale('');
+        showTemporaryMessage("Venda finalizada com sucesso! 💰", "success");
+        setCart([]);
+        setSelectedClientForSale('');
 
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido. Verifique o console.';
-      console.error("Erro ao finalizar venda:", error);
-      showTemporaryMessage(`Erro ao finalizar venda: ${errorMessage}`, "error");
+        const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido. Verifique o console.';
+        console.error("Erro ao finalizar venda:", error);
+        showTemporaryMessage(`Erro ao finalizar venda: ${errorMessage}`, "error");
     } finally {
-      setIsProcessingSale(false);
+        setIsProcessingSale(false);
     }
   };
 
-  // O JSX para renderização do componente permanece o mesmo.
   return (
     <section>
       <h2 className="text-3xl font-bold text-gray-800 mb-6 border-b-2 pb-2 border-green-300">
@@ -325,10 +309,11 @@ export default function POS() {
             </div>
             <button
               onClick={handleCheckout}
-              className="w-full bg-blue-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 disabled:bg-gray-400 disabled:scale-100"
+              className="w-full bg-blue-500 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 disabled:bg-gray-400 disabled:scale-100 flex items-center justify-center"
               disabled={isProcessingSale || cart.length === 0}
               aria-label={isProcessingSale ? 'A processar venda...' : 'Finalizar venda'}
             >
+              {isProcessingSale && <Spinner />}
               {isProcessingSale ? 'A processar...' : 'Finalizar Venda'}
             </button>
           </div>

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 // src/hooks/useReports.ts
 import { useState, useCallback } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
@@ -14,7 +13,6 @@ export interface TopSellingProduct {
   name: string;
   quantity: number;
 }
-// NOVO: Tipo para dados de lucratividade por produto
 export interface ProductProfitability {
   productId: string;
   name: string;
@@ -24,7 +22,6 @@ export interface ProductProfitability {
   totalProfit: number;
   profitMargin: number;
 }
-// NOVO: Tipo para dados de análise de clientes
 export interface CustomerReport {
   clientId: string;
   name: string;
@@ -34,7 +31,7 @@ export interface CustomerReport {
 
 
 export const useReports = () => {
-  const { db, userId, appId, showTemporaryMessage, products, clients } = useApp();
+  const { db, userId, appId, showTemporaryMessage, clients } = useApp();
   const [reportStartDate, setReportStartDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [reportEndDate, setReportEndDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [salesReportData, setSalesReportData] = useState<Sale[]>([]);
@@ -45,27 +42,28 @@ export const useReports = () => {
   const [totalReportExpenses, setTotalReportExpenses] = useState<number>(0);
   const [salesByDay, setSalesByDay] = useState<SalesByDay[]>([]);
   const [topSellingProducts, setTopSellingProducts] = useState<TopSellingProduct[]>([]);
-
-  // NOVO: Estados para os novos relatórios
   const [productProfitability, setProductProfitability] = useState<ProductProfitability[]>([]);
   const [topCustomers, setTopCustomers] = useState<CustomerReport[]>([]);
+  
+  // NOVO: Adicionar o estado de carregamento
+  const [isLoading, setIsLoading] = useState(false);
 
 
   const generateReports = useCallback(async () => {
     if (!db || !userId) return;
+    setIsLoading(true); // Ativar o indicador no início
 
     const start = new Date(reportStartDate + 'T00:00:00Z');
     const end = new Date(reportEndDate + 'T23:59:59.999Z');
 
     try {
-      // --- Vendas ---
+      // ... (toda a lógica de busca e processamento de dados permanece igual)
       const salesRef = collection(db, `artifacts/${appId}/users/${userId}/sales`);
       const salesQuery = query(salesRef, where("timestamp", ">=", start.toISOString()), where("timestamp", "<=", end.toISOString()));
       const salesSnapshot = await getDocs(salesQuery);
       const salesData = salesSnapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() as Sale }));
       setSalesReportData(salesData.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
 
-      // --- Processamento Agregado de Vendas ---
       let salesSum = 0;
       let costOfGoodsSum = 0;
       const dailySales: { [key: string]: number } = {};
@@ -118,8 +116,6 @@ export const useReports = () => {
       const customerData = Object.keys(customerMap).map(clientId => ({clientId, name: clients.find(c => c.id === clientId)?.name || 'Cliente Removido', ...customerMap[clientId]})).sort((a,b) => b.totalSpent - a.totalSpent);
       setTopCustomers(customerData);
 
-
-      // --- Despesas ---
       const expensesRef = collection(db, `artifacts/${appId}/users/${userId}/expenses`);
       const expensesQuery = query(expensesRef, where("timestamp", ">=", start.toISOString()), where("timestamp", "<=", end.toISOString()));
       const expensesSnapshot = await getDocs(expensesQuery);
@@ -132,7 +128,6 @@ export const useReports = () => {
       setExpensesReportData(expensesData.sort((a, b) => new Date(b.timestamp ?? '').getTime() - new Date(a.timestamp ?? '').getTime()));
       setTotalReportExpenses(expensesSum);
 
-      // --- Movimentação de Estoque ---
       const stockMovementsRef = collection(db, `artifacts/${appId}/users/${userId}/stock_movements`);
       const stockMovementsQuery = query(stockMovementsRef, where("timestamp", ">=", start.toISOString()), where("timestamp", "<=", end.toISOString()));
       const stockMovementsSnapshot = await getDocs(stockMovementsQuery);
@@ -142,6 +137,8 @@ export const useReports = () => {
     } catch (error) {
       console.error("Erro ao gerar relatórios:", error);
       showTemporaryMessage("Erro ao gerar relatórios.", "error");
+    } finally {
+        setIsLoading(false); // Desativar o indicador no final
     }
   }, [db, userId, appId, reportStartDate, reportEndDate, showTemporaryMessage, clients]);
 
@@ -154,7 +151,8 @@ export const useReports = () => {
     generateReports,
     salesByDay,
     topSellingProducts,
-    productProfitability, // Exportar novos dados
-    topCustomers, // Exportar novos dados
+    productProfitability,
+    topCustomers,
+    isLoading, // CORREÇÃO: Exportar o estado de carregamento
   };
 };
