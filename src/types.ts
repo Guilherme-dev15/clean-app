@@ -36,7 +36,6 @@ export interface Client {
   lastUpdated?: string;
 }
 
-// NOVO: Interface para Fornecedores
 export interface Supplier {
   id?: string;
   name: string;
@@ -44,18 +43,16 @@ export interface Supplier {
   phone?: string;
   email?: string;
   address?: string;
-  paymentTerms?: string; // Ex: "30 dias", "À vista"
+  paymentTerms?: string;
 }
 
-// NOVO: Interface para Itens de uma Ordem de Compra
 export interface PurchaseOrderItem {
   productId: string;
   productName: string;
   quantity: number;
-  costPrice: number; // Custo por unidade na compra
+  costPrice: number;
 }
 
-// NOVO: Interface para Ordens de Compra
 export interface PurchaseOrder {
   id?: string;
   supplierId: string;
@@ -63,12 +60,13 @@ export interface PurchaseOrder {
   items: PurchaseOrderItem[];
   totalAmount: number;
   status: 'Pendente' | 'Recebida' | 'Cancelada';
-  orderDate: string; // Data do pedido
-  receivedDate?: string; // Data de recebimento
+  orderDate: string;
+  receivedDate?: string;
   notes?: string;
 }
 
-
+// CORREÇÃO: A interface CartItem agora apenas estende Product e adiciona a quantidade.
+// A propriedade redundante 'product' foi removida.
 export interface CartItem extends Product {
   quantity: number;
 }
@@ -95,7 +93,7 @@ export interface StockMovement {
   id?: string;
   productId: string;
   productName: string;
-  type: 'Venda' | 'Ajuste de Entrada' | 'Ajuste de Saída' | 'Compra'; // Adicionado 'Compra'
+  type: 'Venda' | 'Ajuste de Entrada' | 'Ajuste de Saída' | 'Compra';
   quantity: number;
   reason: string;
   timestamp: string;

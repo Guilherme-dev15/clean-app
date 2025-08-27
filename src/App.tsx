@@ -8,6 +8,8 @@ import CashFlow from './components/CashFlow';
 import ClientsManager from './components/ClientsManager';
 import Reports from './components/Reports';
 import SuppliersManager from './components/SuppliersManager';
+import QuoteGenerator from './components/QuoteGenerator';
+
 // NOVO: Importar o Dashboard
 import Dashboard from './components/Dashboard';
 
@@ -25,6 +27,7 @@ function MainContent() {
       {activeTab === 'expenses' && <ExpensesManager />}
       {activeTab === 'cashFlow' && <CashFlow />}
       {activeTab === 'reports' && <Reports />}
+       {activeTab === 'quotes' && <QuoteGenerator />}
     </>
   );
 }

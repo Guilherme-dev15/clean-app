@@ -2,7 +2,7 @@ import { useApp } from './AppContext';
 
 export default function Header() {
   const { userId, activeTab, setActiveTab } = useApp();
-  
+
   return (
     <header className="bg-white shadow-lg rounded-xl p-4 mb-6 flex flex-col sm:flex-row items-center justify-between">
       <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-blue-600 mb-4 sm:mb-0">
@@ -23,6 +23,13 @@ export default function Header() {
           aria-label="Ponto de Venda"
         >
           PDV (Vendas)
+        </button>
+        <button
+          className={`px-5 py-2 rounded-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 ${activeTab === 'quotes' ? 'bg-green-600 text-white shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-green-100 hover:text-green-700'}`}
+          onClick={() => setActiveTab('quotes')}
+          aria-label="Gerar Orçamentos"
+        >
+          Orçamentos
         </button>
         <button
           className={`px-5 py-2 rounded-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 ${activeTab === 'products' ? 'bg-green-600 text-white shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-green-100 hover:text-green-700'}`}
@@ -59,6 +66,7 @@ export default function Header() {
         >
           Fluxo de Caixa
         </button>
+
         <button
           className={`px-5 py-2 rounded-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 ${activeTab === 'reports' ? 'bg-green-600 text-white shadow-md' : 'bg-gray-200 text-gray-700 hover:bg-green-100 hover:text-green-700'}`}
           onClick={() => setActiveTab('reports')}

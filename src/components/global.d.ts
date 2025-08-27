@@ -1,27 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// src/global.d.ts
+    export {}; // This makes the file a module, necessary for `declare global`
 
-// Importa os tipos originais que queremos estender
-import { jsPDF } from 'jspdf';
-import * as XLSX from 'xlsx';
-
-// Aumenta a definição do módulo 'jspdf'
-declare module 'jspdf' {
-  // Adiciona a assinatura do método 'autoTable' à interface jsPDF
-  interface jsPDF {
-    autoTable: (options: any) => jsPDF;
-  }
-}
-
-// Declara as bibliotecas que são carregadas globalmente na janela do navegador
-declare global {
-  interface Window {
-    jsPDF: {
-      jsPDF: typeof jsPDF;
-    };
-    XLSX: typeof XLSX;
-  }
-}
-
-// Garante que este arquivo seja tratado como um módulo
-export {};
+    declare global {
+      interface Window {
+        //eslint-disable-next-line @typescript-eslint/no-explicit-any
+        XLSX: any; // Or a more specific type if you have one for XLSX
+      }
+    }

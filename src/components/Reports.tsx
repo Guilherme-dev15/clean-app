@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useCallback, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useApp } from './AppContext';
@@ -10,13 +11,11 @@ const ReportSectionHeader = ({ title, onExportPdf, onExportXlsx }: { title: stri
   <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
     <h3 className="text-2xl font-semibold text-gray-800">{title}</h3>
     <div className="flex gap-2">
-       {/*onExportPdf && (
-       
+      {onExportPdf && (
         <button onClick={onExportPdf} className="bg-red-500 text-white text-xs font-bold py-1 px-3 rounded hover:bg-red-600">
           Exportar PDF
         </button>
-       
-      )*/} 
+      )}
       {onExportXlsx && (
         <button onClick={onExportXlsx} className="bg-green-600 text-white text-xs font-bold py-1 px-3 rounded hover:bg-green-700">
           Exportar XLSX
@@ -27,25 +26,26 @@ const ReportSectionHeader = ({ title, onExportPdf, onExportXlsx }: { title: stri
 );
 
 export default function Reports() {
-  const { 
-    reportStartDate, setReportStartDate, 
-    reportEndDate, setReportEndDate, 
-    salesReportData, expensesReportData, 
-    totalReportSales, totalReportCostOfGoods, totalReportExpenses, 
+  const {
+    reportStartDate, setReportStartDate,
+    reportEndDate, setReportEndDate,
+    salesReportData, expensesReportData,
+    totalReportSales, totalReportCostOfGoods, totalReportExpenses,
     generateReports,
     salesByDay, topSellingProducts,
     productProfitability, topCustomers,
     isLoading
   } = useReports();
-  
+
   const { clients, showTemporaryMessage } = useApp();
 
   useEffect(() => {
     generateReports();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Função de exportação para PDF corrigida
+  /*
   const exportToPdf = (headers: string[][], body: (string|number)[][], fileName: string) => {
     if (typeof window.jsPDF === 'undefined') {
       showTemporaryMessage("Bibliotecas PDF não carregadas. Tente novamente.", "error");
@@ -58,11 +58,11 @@ export default function Reports() {
     });
     doc.save(`${fileName}.pdf`);
   };
-
+*/
   const exportToXlsx = (data: any[], fileName: string) => {
     if (typeof window.XLSX === 'undefined') {
-        showTemporaryMessage("Biblioteca XLSX não carregada. Tente novamente.", "error");
-        return;
+      showTemporaryMessage("Biblioteca XLSX não carregada. Tente novamente.", "error");
+      return;
     }
     const ws = window.XLSX.utils.json_to_sheet(data);
     const wb = window.XLSX.utils.book_new();
@@ -81,9 +81,9 @@ export default function Reports() {
     const percentFormat = '0.00%';
 
     const coverData = [
-        ["Relatório Gerencial - Limpeza Fácil"], [],
-        ["Período de Análise:", `${new Date(reportStartDate + 'T00:00:00').toLocaleDateString('pt-BR')} a ${new Date(reportEndDate + 'T00:00:00').toLocaleDateString('pt-BR')}`],
-        ["Data de Emissão:", new Date().toLocaleString('pt-BR')],
+      ["Relatório Gerencial - Limpeza Fácil"], [],
+      ["Período de Análise:", `${new Date(reportStartDate + 'T00:00:00').toLocaleDateString('pt-BR')} a ${new Date(reportEndDate + 'T00:00:00').toLocaleDateString('pt-BR')}`],
+      ["Data de Emissão:", new Date().toLocaleString('pt-BR')],
     ];
     const wsCover = window.XLSX.utils.aoa_to_sheet(coverData);
     wsCover['!cols'] = [{ wch: 25 }, { wch: 30 }];
@@ -108,7 +108,7 @@ export default function Reports() {
     window.XLSX.utils.book_append_sheet(wb, wsSummary, "Dashboard Gerencial");
 
     if (salesReportData.length > 0) {
-      const salesDetails = salesReportData.flatMap(sale => 
+      const salesDetails = salesReportData.flatMap(sale =>
         sale.items.map(item => ({
           'Data': new Date(sale.timestamp), 'Cliente': clients.find(c => c.id === sale.clientId)?.name || 'N/A',
           'Produto': item.name, 'Qtd': item.quantity,
@@ -124,26 +124,26 @@ export default function Reports() {
     }
 
     if (expensesReportData.length > 0) {
-        const expensesDetails = expensesReportData.map(exp => ({
-            'Data': new Date(exp.timestamp!), 'Descrição': exp.description,
-            'Valor': { v: exp.amount, t: 'n', z: currencyFormat },
-        }));
-        const wsExpenses = window.XLSX.utils.json_to_sheet(expensesDetails);
-        wsExpenses['!cols'] = [{ wch: 20 }, { wch: 40 }, { wch: 15 }];
-        window.XLSX.utils.book_append_sheet(wb, wsExpenses, "Despesas Detalhadas");
+      const expensesDetails = expensesReportData.map(exp => ({
+        'Data': new Date(exp.timestamp!), 'Descrição': exp.description,
+        'Valor': { v: exp.amount, t: 'n', z: currencyFormat },
+      }));
+      const wsExpenses = window.XLSX.utils.json_to_sheet(expensesDetails);
+      wsExpenses['!cols'] = [{ wch: 20 }, { wch: 40 }, { wch: 15 }];
+      window.XLSX.utils.book_append_sheet(wb, wsExpenses, "Despesas Detalhadas");
     }
-    
+
     if (productProfitability.length > 0) {
-        const profitData = productProfitability.map(p => ({
-            'Produto': p.name, 'Qtd. Vendida': p.quantitySold,
-            'Receita Total': { v: p.totalRevenue, t: 'n', z: currencyFormat },
-            'Custo Total': { v: p.totalCost, t: 'n', z: currencyFormat },
-            'Lucro Total': { v: p.totalProfit, t: 'n', z: currencyFormat },
-            'Margem (%)': { v: p.profitMargin / 100, t: 'n', z: percentFormat },
-        }));
-        const wsProfit = window.XLSX.utils.json_to_sheet(profitData);
-        wsProfit['!cols'] = [{ wch: 30 }, { wch: 15 }, { wch: 18 }, { wch: 18 }, { wch: 18 }, { wch: 15 }];
-        window.XLSX.utils.book_append_sheet(wb, wsProfit, "Lucratividade Produtos");
+      const profitData = productProfitability.map(p => ({
+        'Produto': p.name, 'Qtd. Vendida': p.quantitySold,
+        'Receita Total': { v: p.totalRevenue, t: 'n', z: currencyFormat },
+        'Custo Total': { v: p.totalCost, t: 'n', z: currencyFormat },
+        'Lucro Total': { v: p.totalProfit, t: 'n', z: currencyFormat },
+        'Margem (%)': { v: p.profitMargin / 100, t: 'n', z: percentFormat },
+      }));
+      const wsProfit = window.XLSX.utils.json_to_sheet(profitData);
+      wsProfit['!cols'] = [{ wch: 30 }, { wch: 15 }, { wch: 18 }, { wch: 18 }, { wch: 18 }, { wch: 15 }];
+      window.XLSX.utils.book_append_sheet(wb, wsProfit, "Lucratividade Produtos");
     }
 
     const fileName = `Relatorio_Gerencial_${reportStartDate}_a_${reportEndDate}.xlsx`;
@@ -158,16 +158,16 @@ export default function Reports() {
       <h2 className="text-3xl font-bold text-gray-800 mb-6 border-b-2 pb-2 border-green-300">
         Relatórios de Gestão
       </h2>
-      
+
       <div className="bg-gray-50 p-6 rounded-lg shadow-inner mb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
           <div>
             <label htmlFor="reportStartDate" className="block text-gray-700 text-sm font-semibold mb-2">Data de Início:</label>
-            <input type="date" id="reportStartDate" value={reportStartDate} onChange={(e) => setReportStartDate(e.target.value)} className="w-full p-3 border rounded-md"/>
+            <input type="date" id="reportStartDate" value={reportStartDate} onChange={(e) => setReportStartDate(e.target.value)} className="w-full p-3 border rounded-md" />
           </div>
           <div>
             <label htmlFor="reportEndDate" className="block text-gray-700 text-sm font-semibold mb-2">Data de Fim:</label>
-            <input type="date" id="reportEndDate" value={reportEndDate} onChange={(e) => setReportEndDate(e.target.value)} className="w-full p-3 border rounded-md"/>
+            <input type="date" id="reportEndDate" value={reportEndDate} onChange={(e) => setReportEndDate(e.target.value)} className="w-full p-3 border rounded-md" />
           </div>
           <button
             onClick={generateReports}
@@ -187,7 +187,7 @@ export default function Reports() {
           </button>
         </div>
       </div>
-      
+
       {isLoading && !hasData && <div className="text-center p-10"><Spinner /> Carregando dados iniciais...</div>}
       {!isLoading && !hasData && <div className="text-center p-10 text-gray-500">Nenhum dado encontrado para o período selecionado.</div>}
 
@@ -233,88 +233,97 @@ export default function Reports() {
 
           {/* Seção de Tabelas */}
           <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-            <ReportSectionHeader 
+            <ReportSectionHeader
               title="Lucratividade por Produto"
+            /*
+              Não vamos usar a exportação para PDF por enquanto, pois está com problema na biblioteca
               onExportPdf={() => exportToPdf(
                 [['Produto', 'Qtd. Vendida', 'Receita Total', 'Lucro Total', 'Margem (%)']],
                 productProfitability.map(p => [p.name, p.quantitySold, `R$ ${p.totalRevenue.toFixed(2)}`, `R$ ${p.totalProfit.toFixed(2)}`, `${p.profitMargin.toFixed(1)}%`]),
                 'Lucratividade_Produtos'
               )}
-              onExportXlsx={() => exportToXlsx(productProfitability.map(p => ({'Produto': p.name, 'Qtd. Vendida': p.quantitySold, 'Receita Total': p.totalRevenue, 'Lucro Total': p.totalProfit, 'Margem (%)': p.profitMargin})), 'Lucratividade_Produtos')}
+            */
+           
+              onExportXlsx={() => exportToXlsx(productProfitability.map(p => ({ 'Produto': p.name, 'Qtd. Vendida': p.quantitySold, 'Receita Total': p.totalRevenue, 'Lucro Total': p.totalProfit, 'Margem (%)': p.profitMargin })), 'Lucratividade_Produtos')}
             />
             <div className="overflow-x-auto">
               <table id="productProfitabilityTable" className="min-w-full bg-white">
-                 <thead className="bg-gray-100">
-                   <tr>
-                     <th className="py-2 px-4 text-left">Produto</th>
-                     <th className="py-2 px-4 text-right">Qtd. Vendida</th>
-                     <th className="py-2 px-4 text-right">Receita Total</th>
-                     <th className="py-2 px-4 text-right">Lucro Total</th>
-                     <th className="py-2 px-4 text-right">Margem</th>
-                   </tr>
-                 </thead>
-                 <tbody>
-                   {productProfitability.map(p => (
-                     <tr key={p.productId} className="border-b">
-                       <td className="py-2 px-4 font-medium">{p.name}</td>
-                       <td className="py-2 px-4 text-right">{p.quantitySold}</td>
-                       <td className="py-2 px-4 text-right">R$ {p.totalRevenue.toFixed(2)}</td>
-                       <td className={`py-2 px-4 text-right font-bold ${p.totalProfit > 0 ? 'text-green-600' : 'text-red-600'}`}>R$ {p.totalProfit.toFixed(2)}</td>
-                       <td className={`py-2 px-4 text-right ${p.profitMargin > 20 ? 'text-green-600' : 'text-orange-500'}`}>{p.profitMargin.toFixed(1)}%</td>
-                     </tr>
-                   ))}
-                 </tbody>
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="py-2 px-4 text-left">Produto</th>
+                    <th className="py-2 px-4 text-right">Qtd. Vendida</th>
+                    <th className="py-2 px-4 text-right">Receita Total</th>
+                    <th className="py-2 px-4 text-right">Lucro Total</th>
+                    <th className="py-2 px-4 text-right">Margem</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {productProfitability.map(p => (
+                    <tr key={p.productId} className="border-b">
+                      <td className="py-2 px-4 font-medium">{p.name}</td>
+                      <td className="py-2 px-4 text-right">{p.quantitySold}</td>
+                      <td className="py-2 px-4 text-right">R$ {p.totalRevenue.toFixed(2)}</td>
+                      <td className={`py-2 px-4 text-right font-bold ${p.totalProfit > 0 ? 'text-green-600' : 'text-red-600'}`}>R$ {p.totalProfit.toFixed(2)}</td>
+                      <td className={`py-2 px-4 text-right ${p.profitMargin > 20 ? 'text-green-600' : 'text-orange-500'}`}>{p.profitMargin.toFixed(1)}%</td>
+                    </tr>
+                  ))}
+                </tbody>
               </table>
             </div>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-            <ReportSectionHeader 
-                title="Análise de Clientes"
-                onExportPdf={() => exportToPdf(
-                    [['Cliente', 'Nº de Compras', 'Total Gasto']],
-                    topCustomers.map(c => [c.name, c.purchaseCount, `R$ ${c.totalSpent.toFixed(2)}`]),
-                    'Analise_Clientes'
-                )}
-                onExportXlsx={() => exportToXlsx(topCustomers.map(c => ({'Cliente': c.name, 'Nº de Compras': c.purchaseCount, 'Total Gasto': c.totalSpent})), 'Analise_Clientes')}
+            <ReportSectionHeader
+              title="Análise de Clientes"
+              /*
+              onExportPdf={() => exportToPdf(
+                [['Cliente', 'Nº de Compras', 'Total Gasto']],
+                topCustomers.map(c => [c.name, c.purchaseCount, `R$ ${c.totalSpent.toFixed(2)}`]),
+                'Analise_Clientes'
+              )}
+                */
+              onExportXlsx={() => exportToXlsx(topCustomers.map(c => ({ 'Cliente': c.name, 'Nº de Compras': c.purchaseCount, 'Total Gasto': c.totalSpent })), 'Analise_Clientes')}
             />
             <div className="overflow-x-auto">
               <table id="topCustomersTable" className="min-w-full bg-white">
                 <thead className="bg-gray-100">
-                   <tr>
-                     <th className="py-2 px-4 text-left">Cliente</th>
-                     <th className="py-2 px-4 text-right">Nº de Compras</th>
-                     <th className="py-2 px-4 text-right">Total Gasto</th>
-                   </tr>
-                 </thead>
-                 <tbody>
-                   {topCustomers.map(c => (
-                     <tr key={c.clientId} className="border-b">
-                       <td className="py-2 px-4 font-medium">{c.name}</td>
-                       <td className="py-2 px-4 text-right">{c.purchaseCount}</td>
-                       <td className="py-2 px-4 text-right font-bold text-blue-600">R$ {c.totalSpent.toFixed(2)}</td>
-                     </tr>
-                   ))}
-                 </tbody>
+                  <tr>
+                    <th className="py-2 px-4 text-left">Cliente</th>
+                    <th className="py-2 px-4 text-right">Nº de Compras</th>
+                    <th className="py-2 px-4 text-right">Total Gasto</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {topCustomers.map(c => (
+                    <tr key={c.clientId} className="border-b">
+                      <td className="py-2 px-4 font-medium">{c.name}</td>
+                      <td className="py-2 px-4 text-right">{c.purchaseCount}</td>
+                      <td className="py-2 px-4 text-right font-bold text-blue-600">R$ {c.totalSpent.toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
               </table>
             </div>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-            <ReportSectionHeader 
-                title="Relatório de Vendas Detalhado"
-                onExportPdf={() => exportToPdf(
-                    [['Data', 'Cliente', 'Itens', 'Método Pag.', 'Total']],
-                    salesReportData.map(sale => [
-                        new Date(sale.timestamp).toLocaleDateString(),
-                        clients.find(c => c.id === sale.clientId)?.name || 'N/A',
-                        sale.items.map(i => `${i.name} (x${i.quantity})`).join(', '),
-                        sale.paymentMethod,
-                        `R$ ${sale.total.toFixed(2)}`
-                    ]),
-                    'Vendas_Detalhadas'
-                )}
-                onExportXlsx={() => exportToXlsx(salesReportData.map(sale => ({'Data': new Date(sale.timestamp).toLocaleString(), 'Cliente': clients.find(c => c.id === sale.clientId)?.name || 'N/A', 'Itens': sale.items.map(i => `${i.name} (x${i.quantity})`).join(', '), 'Método Pag.': sale.paymentMethod, 'Total': sale.total})), 'Vendas_Detalhadas')}
+            <ReportSectionHeader
+              title="Relatório de Vendas Detalhado"
+
+              /*
+              onExportPdf={() => exportToPdf(
+                [['Data', 'Cliente', 'Itens', 'Método Pag.', 'Total']],
+                salesReportData.map(sale => [
+                  new Date(sale.timestamp).toLocaleDateString(),
+                  clients.find(c => c.id === sale.clientId)?.name || 'N/A',
+                  sale.items.map(i => `${i.name} (x${i.quantity})`).join(', '),
+                  sale.paymentMethod,
+                  `R$ ${sale.total.toFixed(2)}`
+                ]),
+                'Vendas_Detalhadas'
+              )}
+                */
+              onExportXlsx={() => exportToXlsx(salesReportData.map(sale => ({ 'Data': new Date(sale.timestamp).toLocaleString(), 'Cliente': clients.find(c => c.id === sale.clientId)?.name || 'N/A', 'Itens': sale.items.map(i => `${i.name} (x${i.quantity})`).join(', '), 'Método Pag.': sale.paymentMethod, 'Total': sale.total })), 'Vendas_Detalhadas')}
             />
             <div className="overflow-x-auto">
               <table id="salesTable" className="min-w-full bg-white">
