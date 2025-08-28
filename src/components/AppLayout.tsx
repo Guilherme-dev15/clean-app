@@ -8,6 +8,7 @@ import Message from './Message';
 import Modal from './common/Modal';
 import LoadingSpinner from './common/LoadingSpinner';
 import { Product, Client, Supplier } from '../types';
+import Login from './Login';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -16,6 +17,7 @@ interface AppLayoutProps {
 export default function AppLayout({ children }: AppLayoutProps) {
   const { userId, loading: loadingFirebase, db } = useFirebase();
   const appId = "clean-app-665c4";
+
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [message, setMessage] = useState<{ text: string; type: string } | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -25,36 +27,36 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [clients, setClients] = useState<Client[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
+  // ✅ Mensagens temporárias
   const showTemporaryMessage = useCallback((msg: string, type = 'success') => {
     setMessage({ text: msg, type });
     setTimeout(() => setMessage(null), 5000);
   }, []);
 
+  // ✅ Confirmação de ações no modal
   const confirmAction = useCallback((action: AppContextType['modalAction'], data: AppContextType['modalData']) => {
     setModalAction(() => action);
     setModalData(data);
     setShowModal(true);
   }, []);
 
+  // ✅ Carregar dados do Firestore
   useEffect(() => {
     if (!db || !userId) return;
 
     const productsCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/products`);
     const unsubscribeProducts = onSnapshot(productsCollectionRef, (snapshot) => {
-      const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as Product }));
-      setProducts(productsData);
+      setProducts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as Product })));
     });
 
     const clientsCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/clients`);
     const unsubscribeClients = onSnapshot(clientsCollectionRef, (snapshot) => {
-      const clientsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as Client }));
-      setClients(clientsData);
+      setClients(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as Client })));
     });
-    
+
     const suppliersCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/suppliers`);
     const unsubscribeSuppliers = onSnapshot(suppliersCollectionRef, (snapshot) => {
-        const suppliersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as Supplier }));
-        setSuppliers(suppliersData);
+      setSuppliers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as Supplier })));
     });
 
     return () => {
@@ -64,6 +66,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     };
   }, [db, userId, appId]);
 
+  // ✅ Carregar scripts externos
   useEffect(() => {
     const loadScript = (src: string, id: string, callback?: () => void) => {
       if (document.getElementById(id)) {
@@ -86,14 +89,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
     });
 
     loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js', 'xlsx-script');
-    
-    // REMOVIDO: A linha que carregava o Recharts foi removida.
   }, [showTemporaryMessage]);
 
-  if (loadingFirebase) {
-    return <LoadingSpinner />;
-  }
-
+  // ✅ Função de confirmação de modal
   const handleModalConfirm = () => {
     if (modalAction && modalData) {
       if (modalData.amount !== undefined) {
@@ -105,6 +103,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     setShowModal(false);
   };
 
+  // ✅ Valor do contexto global
   const value: AppContextType = {
     db,
     userId,
@@ -123,13 +122,27 @@ export default function AppLayout({ children }: AppLayoutProps) {
     message: message,
   };
 
+  // ✅ Lógica condicional de autenticação (guard)
+  if (loadingFirebase) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (!userId) {
+    return <Login />;
+  }
+
+  // ✅ Estrutura principal só renderiza se estiver logado
   return (
     <AppContext.Provider value={value}>
       <div className="min-h-screen bg-gradient-to-br from-green-100 to-blue-100 flex flex-col p-4 font-sans antialiased">
         <Header />
         {message && <Message text={message.text} type={message.type} />}
         <main className="flex-grow bg-white shadow-xl rounded-xl p-6">
-          {loadingFirebase ? <LoadingSpinner /> : children}
+          {children}
         </main>
         <Modal
           show={showModal}

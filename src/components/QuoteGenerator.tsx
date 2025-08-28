@@ -1,4 +1,5 @@
-import { useState } from 'react';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { useState, useEffect } from 'react';
 import { useApp } from './AppContext';
 import { Product, Client, CartItem } from '../types';
 import Spinner from './common/Spinner';
@@ -10,19 +11,34 @@ import pdfFonts from "pdfmake/build/vfs_fonts";
 
 // 2. CORREÇÃO DEFINITIVA: Registrar as fontes no pdfMake da maneira correta.
 // A propriedade 'vfs' está dentro de 'pdfMake', que por sua vez está dentro do módulo de fontes.
-
 pdfMake.vfs = pdfFonts.pdfMake;
 
-
-
 export default function QuoteGenerator() {
-
   const { products, clients, showTemporaryMessage } = useApp();
   const [quoteItems, setQuoteItems] = useState<CartItem[]>([]);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-  const [quoteDate, setQuoteDate] = useState(new Date().toISOString().split("T")[0]);
-  const [quoteValidity, setQuoteValidity] = useState("15 dias");
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // --- NOVOS ESTADOS PARA OS CAMPOS DO ORÇAMENTO ---
+  const [quoteNumber, setQuoteNumber] = useState('');
+  const [contactPerson, setContactPerson] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('A combinar');
+  const [deliveryTime, setDeliveryTime] = useState('A combinar');
+  const [quoteDate, setQuoteDate] = useState(new Date().toISOString().split("T")[0]);
+  // MODIFICAÇÃO: Estado para a validade do orçamento
+  const [quoteValidity, setQuoteValidity] = useState('15 dias');
+
+  // Efeito para gerar um número de proposta único ao carregar o componente
+  useEffect(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    setQuoteNumber(`${year}${month}${day}-${hours}${minutes}`);
+  }, []);
+
 
   const addToQuote = (product: Product) => {
     const existingItem = quoteItems.find((item) => item.id === product.id);
@@ -35,7 +51,7 @@ export default function QuoteGenerator() {
         )
       );
     } else {
-      // Simplificado e corrigido para corresponder à interface CartItem
+      // Corrigido para corresponder à interface CartItem do seu types.ts
       const newItem: CartItem = { ...product, quantity: 1 };
       setQuoteItems([...quoteItems, newItem]);
     }
@@ -115,13 +131,14 @@ export default function QuoteGenerator() {
       }),
       content: [
         { canvas: [{ type: "line", x1: 0, y1: 5, x2: 515, y2: 5, lineWidth: 1, lineColor: "#cccccc" }] },
+        { text: `Proposta Nº: ${quoteNumber || 'N/A'}`, alignment: 'right', style: 'quoteNumber' },
         { text: "Dados do Cliente", style: "sectionHeader" },
         {
           style: "clientTable",
           table: {
             widths: ["auto", "*", "auto", "*"],
             body: [
-              [{ text: "Empresa:", bold: true }, selectedClient.name, { text: "Responsável:", bold: true }, ""],
+              [{ text: "Empresa:", bold: true }, selectedClient.name, { text: "Responsável:", bold: true }, contactPerson || ''],
               [{ text: "Telefone:", bold: true }, selectedClient.contactPhone, { text: "E-mail:", bold: true }, selectedClient.contactEmail],
               [{ text: "Data:", bold: true }, new Date(quoteDate).toLocaleDateString("pt-BR"), "", ""],
             ],
@@ -145,8 +162,8 @@ export default function QuoteGenerator() {
           table: {
             widths: ["auto", "*"],
             body: [
-              [{ text: "Forma de pagamento:", bold: true }, "A combinar"],
-              [{ text: "Prazo de entrega:", bold: true }, "A combinar"],
+              [{ text: "Forma de pagamento:", bold: true }, paymentMethod],
+              [{ text: "Prazo de entrega:", bold: true }, deliveryTime],
               [{ text: "Validade do orçamento:", bold: true }, quoteValidity],
             ],
           },
@@ -162,6 +179,7 @@ export default function QuoteGenerator() {
         headerTitle: { fontSize: 22, bold: true },
         headerSubtitle: { fontSize: 10, margin: [0, 4, 0, 2] },
         headerInfo: { fontSize: 9 },
+        quoteNumber: { fontSize: 10, bold: true, margin: [0, 10, 0, 0] },
         sectionHeader: { fontSize: 12, bold: true, margin: [0, 15, 0, 5] },
         clientTable: { margin: [0, 5, 0, 15], fontSize: 10 },
         itemsTable: { margin: [0, 5, 0, 15] },
@@ -174,17 +192,8 @@ export default function QuoteGenerator() {
       },
     };
 
-    pdfMake.createPdf(docDefinition).getBlob((blob: Blob | MediaSource) => {
-      const url = URL.createObjectURL(blob);
-      const win = window.open(url);
-      if (!win) {
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `Orcamento_${selectedClient.name.replace(/\s/g, '_')}.pdf`;
-        a.click();
-      }
-      setIsGenerating(false);
-    });
+    pdfMake.createPdf(docDefinition).open();
+    setIsGenerating(false);
   };
 
   return (
@@ -234,13 +243,46 @@ export default function QuoteGenerator() {
                 ))}
               </select>
             </div>
+            {/* --- CAMPOS DO FORMULÁRIO ATUALIZADOS --- */}
             <div>
-              <label htmlFor="quote-date" className="block text-sm font-medium text-gray-700">Data do Orçamento</label>
-              <input type="date" id="quote-date" value={quoteDate} onChange={e => setQuoteDate(e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+              <label htmlFor="quote-number" className="block text-sm font-medium text-gray-700">Nº da Proposta</label>
+              <input type="text" id="quote-number" value={quoteNumber} readOnly className="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100"/>
             </div>
+             <div>
+              <label htmlFor="contact-person" className="block text-sm font-medium text-gray-700">Contato/Responsável</label>
+              <input type="text" id="contact-person" value={contactPerson} onChange={e => setContactPerson(e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"/>
+            </div>
+             <div>
+              <label htmlFor="payment-method" className="block text-sm font-medium text-gray-700">Forma de Pagamento</label>
+              <select
+                id="payment-method"
+                value={paymentMethod}
+                onChange={e => setPaymentMethod(e.target.value)}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              >
+                <option>A combinar</option>
+                <option>PIX</option>
+                <option>Boleto Bancário</option>
+                <option>Cartão de Crédito</option>
+                <option>Dinheiro</option>
+              </select>
+            </div>
+             <div>
+              <label htmlFor="delivery-time" className="block text-sm font-medium text-gray-700">Prazo de Entrega</label>
+              <input type="text" id="delivery-time" value={deliveryTime} onChange={e => setDeliveryTime(e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"/>
+            </div>
+            {/* MODIFICAÇÃO: Campo de Validade agora é um select */}
             <div>
-              <label htmlFor="quote-validity" className="block text-sm font-medium text-gray-700">Validade</label>
-              <input type="text" id="quote-validity" value={quoteValidity} onChange={e => setQuoteValidity(e.target.value)} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+              <label htmlFor="quote-validity" className="block text-sm font-medium text-gray-700">Validade do Orçamento</label>
+              <select
+                id="quote-validity"
+                value={quoteValidity}
+                onChange={e => setQuoteValidity(e.target.value)}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              >
+                <option>15 dias</option>
+                <option>30 dias</option>
+              </select>
             </div>
           </div>
           <div className="flex-grow max-h-72 overflow-y-auto pr-2 mb-4 border-t pt-4">

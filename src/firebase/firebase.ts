@@ -1,7 +1,9 @@
 // src/firebase/firebase.ts
 import { initializeApp } from 'firebase/app';
-import { getAuth, connectAuthEmulator } from 'firebase/auth';
+import { getAuth, connectAuthEmulator, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator, enableIndexedDbPersistence } from 'firebase/firestore'; // Importe enableIndexedDbPersistence
+
+
 
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyAmAzsZcQxB9TgSMlURmKvMMKQGLs3Rjac",
@@ -26,6 +28,7 @@ if (window.location.hostname === "localhost") {
   connectAuthEmulator(firebaseAuth, 'http://localhost:9099');
 }
 
+
 // Habilita a persistência offline.
 enableIndexedDbPersistence(firebaseFirestore)
   .catch((err) => {
@@ -37,3 +40,9 @@ enableIndexedDbPersistence(firebaseFirestore)
       console.error("Erro ao habilitar persistência offline:", err);
     }
   });
+
+  //configuração do provedor Google
+  const app = initializeApp(FIREBASE_CONFIG);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+  export { auth, provider };

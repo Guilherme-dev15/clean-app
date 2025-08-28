@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // src/hooks/useFirebase.ts
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged, signInAnonymously, signInWithCustomToken } from 'firebase/auth';
@@ -22,7 +23,8 @@ export const useFirebase = (initialAuthToken: string | null = null) => {
       setAuthState(prev => ({ ...prev, db: firebaseFirestore }));
 
       const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
-        if (user) {
+        //Login Automatico desabilitado
+        /*if (user) {
           setAuthState({ userId: user.uid, loading: false, db: firebaseFirestore });
         } else {
           try {
@@ -37,6 +39,16 @@ export const useFirebase = (initialAuthToken: string | null = null) => {
             console.error("Erro na autenticação:", error);
             setAuthState({ userId: crypto.randomUUID(), loading: false, db: firebaseFirestore });
           }
+        }*/
+        
+        //Login com autenticação por email e senha
+          if (user) {
+          // Se encontrar um usuário, define o estado (isso está correto)
+          setAuthState({ userId: user.uid, loading: false, db: firebaseFirestore });
+        } else {
+          // Se NÃO encontrar um usuário, apenas finaliza o carregamento
+          // SEM criar um novo usuário anônimo.
+          setAuthState({ userId: null, loading: false, db: firebaseFirestore });
         }
       });
       return () => unsubscribe();

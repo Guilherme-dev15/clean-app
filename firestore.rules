@@ -2,10 +2,15 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // ATENÇÃO: Esta regra permite acesso total à sua base de dados.
-    // É segura para o emulador local, mas NUNCA deve ser usada em produção.
+    
+    // Regra para proteger os dados do usuário dentro do caminho específico
+    match /artifacts/{appId}/users/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Negar acesso a qualquer outro caminho (opcional, para segurança extra)
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if false;
     }
   }
 }

@@ -13,12 +13,12 @@ import QuoteGenerator from './components/QuoteGenerator';
 // NOVO: Importar o Dashboard
 import Dashboard from './components/Dashboard';
 
+
 function MainContent() {
   const { activeTab } = useApp();
 
   return (
     <>
-      {/* NOVO: Renderizar o Dashboard */}
       {activeTab === 'dashboard' && <Dashboard />}
       {activeTab === 'pos' && <POS />}
       {activeTab === 'products' && <ProductManager />}
@@ -27,7 +27,7 @@ function MainContent() {
       {activeTab === 'expenses' && <ExpensesManager />}
       {activeTab === 'cashFlow' && <CashFlow />}
       {activeTab === 'reports' && <Reports />}
-       {activeTab === 'quotes' && <QuoteGenerator />}
+      {activeTab === 'quotes' && <QuoteGenerator />}
     </>
   );
 }
