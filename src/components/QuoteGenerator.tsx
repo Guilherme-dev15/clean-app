@@ -193,6 +193,7 @@ export default function QuoteGenerator() {
     };
 
     pdfMake.createPdf(docDefinition).open();
+    pdfMake.createPdf(docDefinition).download(`Orcamento_${quoteNumber || 'N-A'}.pdf`);
     setIsGenerating(false);
   };
 
