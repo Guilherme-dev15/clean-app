@@ -1,3 +1,4 @@
+/* eslint-disable no-empty-pattern */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // src/components/ClientsManager.tsx
 import { useState, useEffect, useCallback } from 'react';
@@ -24,8 +25,8 @@ export default function ClientsManager() {
     invoicingNotes: [] 
   });
   const [editingClient, setEditingClient] = useState<Client | null>(null);
-  const [newAttachment] = useState<Attachment>({ url: '', description: '' });
-  const [clientSalesHistory, setClientSalesHistory] = useState<Sale[]>([]);
+  const [] = useState<Attachment>({ url: '', description: '' });
+  const [] = useState<Sale[]>([]);
 
   // Estados para a paginação
   const [paginatedClients, setPaginatedClients] = useState<Client[]>([]);

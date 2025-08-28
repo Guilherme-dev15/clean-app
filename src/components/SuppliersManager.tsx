@@ -1,5 +1,5 @@
 // src/components/SuppliersManager.tsx
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useApp } from './AppContext';
 import { collection, onSnapshot, doc, updateDoc, deleteDoc, writeBatch, DocumentData, addDoc, query, orderBy } from 'firebase/firestore';
 import { Supplier, PurchaseOrder, PurchaseOrderItem, Product, StockMovement } from '../types';

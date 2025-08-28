@@ -1,4 +1,3 @@
-import React from 'react';
 import { useApp } from './AppContext';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase/firebase'; // ajuste o caminho conforme seu projeto

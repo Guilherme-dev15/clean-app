@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 import { useState, useEffect } from 'react';
 import { useApp } from './AppContext';
 import { Product, Client, CartItem } from '../types';
@@ -24,7 +24,7 @@ export default function QuoteGenerator() {
   const [contactPerson, setContactPerson] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('A combinar');
   const [deliveryTime, setDeliveryTime] = useState('A combinar');
-  const [quoteDate, setQuoteDate] = useState(new Date().toISOString().split("T")[0]);
+  const [quoteDate] = useState(new Date().toISOString().split("T")[0]);
   // MODIFICAÇÃO: Estado para a validade do orçamento
   const [quoteValidity, setQuoteValidity] = useState('15 dias');
 

@@ -1,7 +1,8 @@
+ 
 // src/firebase/firebase.ts
 import { initializeApp } from 'firebase/app';
-import { getAuth, connectAuthEmulator, GoogleAuthProvider } from 'firebase/auth';
-import { getFirestore, connectFirestoreEmulator, enableIndexedDbPersistence } from 'firebase/firestore'; // Importe enableIndexedDbPersistence
+import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore'; // Importe enableIndexedDbPersistence
 
 
 
@@ -21,13 +22,14 @@ export const firebaseFirestore = getFirestore(firebaseApp);
 export const firebaseAuth = getAuth(firebaseApp);
 export const FIREBASE_APP_ID = FIREBASE_CONFIG.projectId;
 
+/*
 // Conecta aos emuladores se em localhost
 if (window.location.hostname === "localhost") {
   console.log("Conectando aos Emuladores do Firebase...");
   connectFirestoreEmulator(firebaseFirestore, 'localhost', 8080);
   connectAuthEmulator(firebaseAuth, 'http://localhost:9099');
 }
-
+*/
 
 // Habilita a persistência offline.
 enableIndexedDbPersistence(firebaseFirestore)

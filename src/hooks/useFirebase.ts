@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 // src/hooks/useFirebase.ts
 import { useState, useEffect } from 'react';
-import { onAuthStateChanged, signInAnonymously, signInWithCustomToken } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import type { Firestore } from 'firebase/firestore';
 import { firebaseFirestore, firebaseAuth } from '../firebase/firebase';
 

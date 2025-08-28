@@ -1,10 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
-import React, { useState } from 'react';
+import { useState } from 'react';
 // CORREÇÃO: Os caminhos de importação foram ajustados para garantir a resolução correta dos módulos.
 import { useApp } from './AppContext';
 import { collection, doc, getDoc, getDocFromCache, writeBatch, DocumentData, DocumentSnapshot } from 'firebase/firestore';
-import { CartItem, Sale, StockMovement, Product, Client } from '../types';
+import { CartItem, Sale, StockMovement, Product } from '../types';
 import Spinner from './common/Spinner';
 
 export default function POS() {

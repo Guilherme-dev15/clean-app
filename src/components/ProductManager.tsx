@@ -1,5 +1,5 @@
 // src/components/ProductManager.tsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 // CORREÇÃO: Os caminhos de importação foram ajustados para garantir a resolução correta dos módulos.
 import { useApp } from './AppContext';
 import { addDoc, collection, deleteDoc, doc, updateDoc, DocumentData } from 'firebase/firestore';

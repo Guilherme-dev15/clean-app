@@ -148,7 +148,7 @@ export default function Reports() {
 
     const fileName = `Relatorio_Gerencial_${reportStartDate}_a_${reportEndDate}.xlsx`;
     window.XLSX.writeFile(wb, fileName);
-  }, [reportStartDate, reportEndDate, totalReportSales, totalReportCostOfGoods, totalReportExpenses, salesReportData, expensesReportData, productProfitability, clients]);
+  }, [reportStartDate, reportEndDate, salesReportData, totalReportSales, totalReportCostOfGoods, totalReportExpenses, expensesReportData, productProfitability, showTemporaryMessage, clients]);
 
   const netProfit = totalReportSales - totalReportCostOfGoods - totalReportExpenses;
   const hasData = salesReportData.length > 0 || expensesReportData.length > 0;

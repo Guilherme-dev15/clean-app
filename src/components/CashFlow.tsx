@@ -1,5 +1,5 @@
 // src/components/CashFlow.tsx
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useApp } from '../components/AppContext';
 import { doc, onSnapshot, collection, query, where, getDocs } from 'firebase/firestore'; // Adicionado 'where' e 'getDocs'
 

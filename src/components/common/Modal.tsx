@@ -1,5 +1,3 @@
-// src/components/common/Modal.tsx
-import React from 'react';
 
 interface ModalProps {
   show: boolean;

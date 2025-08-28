@@ -1,6 +1,4 @@
 // src/components/Message.tsx
-import React from 'react';
-
 interface MessageProps {
   text: string;
   type: string;
