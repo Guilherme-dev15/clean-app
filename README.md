@@ -10,7 +10,6 @@
 
 Este projeto foi concebido e desenvolvido integralmente por mim para um cliente real e está atualmente em produção, otimizando o dia a dia da empresa. O sistema foi arquitetado para ser uma solução completa, substituindo planilhas e processos manuais por uma interface de usuário intuitiva e um backend robusto e em tempo real.
 
-🔴 **Status do Repositório:** Este é um projeto de código-fonte fechado (*closed-source*). O código não está disponível publicamente para proteger a propriedade intelectual do cliente e a minha. Este README serve como uma demonstração detalhada da arquitetura, funcionalidades e tecnologias empregadas, funcionando como uma peça central do meu portfólio de desenvolvimento.
 
 ---
 
