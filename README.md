@@ -1,69 +1,70 @@
-# React + TypeScript + Vite
+# Limpeza Fácil - Sistema de Gestão Empresarial (ERP/PDV)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![Capa do Projeto](https://placehold.co/1200x600/16a34a/white?text=Limpeza+Fácil+ERP)
 
-Currently, two official plugins are available:
+**Sistema completo de gestão (ERP) e Ponto de Venda (PDV) desenvolvido sob medida para uma distribuidora de produtos de limpeza, centralizando todas as operações de vendas, estoque, finanças e relacionamento com o cliente em uma única plataforma moderna e reativa.**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+### Visão Geral do Projeto
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Este projeto foi concebido e desenvolvido integralmente por mim para um cliente real e está atualmente em produção, otimizando o dia a dia da empresa. O sistema foi arquitetado para ser uma solução completa, substituindo planilhas e processos manuais por uma interface de usuário intuitiva e um backend robusto e em tempo real.
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+🔴 **Status do Repositório:** Este é um projeto de código-fonte fechado (*closed-source*). O código não está disponível publicamente para proteger a propriedade intelectual do cliente e a minha. Este README serve como uma demonstração detalhada da arquitetura, funcionalidades e tecnologias empregadas, funcionando como uma peça central do meu portfólio de desenvolvimento.
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### ✨ Demonstração em Vídeo
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Assista a um tour completo pelas funcionalidades do sistema, desde uma venda no PDV até a geração de relatórios gerenciais.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+_[Link para um vídeo de demonstração no YouTube ou Vimeo - Grave um vídeo de 2-3 minutos mostrando os fluxos principais!]_
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+
+### 🚀 Funcionalidades em Destaque
+
+Abaixo, algumas das principais funcionalidades do sistema, ilustradas com screenshots e GIFs.
+
+| GIF/Imagem | Descrição Detalhada |
+| :---: | --- |
+| _[INSIRA AQUI UM GIF DO FLUXO DE VENDA]_ | **Ponto de Venda (PDV) Inteligente e Rápido:** Um fluxo de venda otimizado que permite adicionar produtos ao carrinho, ajustar quantidades, selecionar clientes e escolher múltiplos métodos de pagamento, incluindo "Fiado" (venda a prazo). O estoque dos produtos é atualizado em tempo real a cada venda finalizada. |
+| _[INSIRA AQUI UM GIF GERANDO UM ORÇAMENTO]_ | **Gerador de Orçamentos Profissionais em PDF:** Uma ferramenta que permite criar orçamentos personalizados para clientes, adicionando produtos, definindo condições comerciais e gerando um documento PDF profissional com um clique, utilizando a biblioteca `pdfmake`. |
+| _[INSIRA AQUI UM GIF NAVEGANDO NOS RELATÓRIOS]_ | **Relatórios Gerenciais Dinâmicos:** Painel de relatórios completo com filtros por período para análise de vendas, despesas, lucratividade por produto e performance de clientes. Os dados podem ser exportados para planilhas XLSX para análises mais aprofundadas. |
+| _[INSIRA AQUI UMA SCREENSHOT DO DASHBOARD]_ | **Dashboard Principal com Indicadores Chave:** A tela inicial apresenta um resumo diário das métricas mais importantes do negócio: total de vendas, clientes atendidos, produtos com estoque baixo e o valor total a receber de clientes. |
+| _[INSIRA AQUI UMA SCREENSHOT DA GESTÃO DE PRODUTOS]_ | **Gestão Completa de Produtos e Estoque:** Interface para CRUD de produtos, com controle de preço de venda, preço de custo, estoque atual e estoque mínimo. O sistema emite alertas visuais para produtos que atingem o nível mínimo de estoque, além de permitir ajustes manuais e registrar todo o histórico de movimentação. |
+| _[INSIRA AQUI UMA SCREENSHOT DA GESTÃO DE COMPRAS]_ | **Controle de Compras e Fornecedores:** Módulo para gerenciar fornecedores e criar ordens de compra. [cite_start]Ao receber uma compra, o sistema atualiza automaticamente o estoque dos produtos correspondentes, mantendo a integridade dos dados[cite: 1]. |
+| _[INSIRA AQUI UMA SCREENSHOT DO CRM]_ | **CRM e Gestão de Contas a Receber:** Além do cadastro de clientes, o sistema funciona como um CRM básico, registrando o histórico de compras e controlando o saldo devedor (dívidas de vendas "Fiado"), que é atualizado automaticamente. |
+| _[INSIRA AQUI UMA SCREENSHOT DO FLUXO DE CAIXA]_ | **Fluxo de Caixa Diário e Mensal:** Ferramenta para acompanhamento do fluxo de caixa, mostrando o balanço de entradas (vendas) e saídas (despesas) tanto para o dia corrente quanto para qualquer mês selecionado. |
+
+---
+
+### 🛠️ Arquitetura e Tecnologias Utilizadas
+
+A aplicação foi construída utilizando uma stack moderna, focada em performance, escalabilidade e desenvolvimento ágil.
+
+| Categoria | Tecnologia/Ferramenta | Descrição |
+| --- | --- | --- |
+| **Frontend** | React 19, TypeScript, Vite | Uma base reativa e tipada para uma interface de usuário rápida e manutenível. |
+| **Estilização** | Tailwind CSS | Abordagem *utility-first* para um design consistente e responsivo, desenvolvido de forma ágil. |
+| **Backend & Banco de Dados** | Firebase (Firestore, Auth) | Solução *serverless* do Google que garante sincronização de dados em tempo real (`onSnapshot`), autenticação segura e persistência de dados offline (`enableIndexedDbPersistence`), crucial para a estabilidade do PDV. |
+| **Estado Global** | React Context API | Gerenciamento de estado centralizado e simplificado através de um `AppContext`, provendo dados como produtos, clientes e fornecedores para todos os componentes. |
+| **Relatórios e Gráficos** | Recharts, xlsx (SheetJS) | Visualização de dados com gráficos interativos na tela de Relatórios e capacidade de exportação para o formato Excel. |
+| **Geração de Documentos** | pdfmake | Criação de orçamentos em PDF do lado do cliente, com layout profissional e dinâmico. |
+| **Estrutura de Código** | Custom Hooks, Componentes Modulares | A lógica de negócio foi abstraída em hooks customizados (ex: `useReports`, `useDashboardData`) para máxima reutilização e separação de responsabilidades. |
+
+---
+
+### 👨‍💻 Autor
+
+**[Guilherme Anjos]**
+
+* **LinkedIn:** https://pt.linkedin.com/
+* **GitHub:** https://www.youtube.com/watch?v=TsaLQAetPLU
+* **Portfólio:** https://pt.wix.com/portfolio-online
+
+---
+
+### 📄 Licença
+
+Este projeto é de minha autoria intelectual e licenciado para uso exclusivo do cliente final. Todos os direitos são reservados.
