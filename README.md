@@ -58,10 +58,9 @@ A aplicação foi construída utilizando uma stack moderna, focada em performanc
 
 **[Guilherme Anjos]**
 
-* **LinkedIn:** https://pt.linkedin.com/
-* **GitHub:** https://www.youtube.com/watch?v=TsaLQAetPLU
-* **Portfólio:** https://pt.wix.com/portfolio-online
-
+* **LinkedIn:** https://www.linkedin.com/in/guilherme-a-anjos/
+* **GitHub:** https://github.com/Guilherme-dev15
+* **Portfólio:** https://guilherme-dev15.github.io/js-developer-portfolio/
 ---
 
 ### 📄 Licença
