@@ -1,7 +1,5 @@
 # Limpeza Fácil - Sistema de Gestão Empresarial (ERP/PDV)
 
-![Capa do Projeto](https://placehold.co/1200x600/16a34a/white?text=Limpeza+Fácil+ERP)
-
 **Sistema completo de gestão (ERP) e Ponto de Venda (PDV) desenvolvido sob medida para uma distribuidora de produtos de limpeza, centralizando todas as operações de vendas, estoque, finanças e relacionamento com o cliente em uma única plataforma moderna e reativa.**
 
 ---
