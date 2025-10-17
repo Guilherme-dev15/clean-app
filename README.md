@@ -11,7 +11,7 @@
 Este projeto foi concebido e desenvolvido integralmente por mim para um cliente real e está atualmente em produção, otimizando o dia a dia da empresa. O sistema foi arquitetado para ser uma solução completa, substituindo planilhas e processos manuais por uma interface de usuário intuitiva e um backend robusto e em tempo real.
 
 
----
+<!-----
 
 ### ✨ Demonstração em Vídeo
 
@@ -19,7 +19,7 @@ Assista a um tour completo pelas funcionalidades do sistema, desde uma venda no 
 
 _[Link para um vídeo de demonstração no YouTube ou Vimeo - Grave um vídeo de 2-3 minutos mostrando os fluxos principais!]_
 
----
+--->
 
 ### 🚀 Funcionalidades em Destaque
 
