@@ -7,15 +7,14 @@ import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore'; /
 
 
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyAmAzsZcQxB9TgSMlURmKvMMKQGLs3Rjac",
-  authDomain: "clean-app-665c4.firebaseapp.com",
-  projectId: "clean-app-665c4",
-  storageBucket: "clean-app-665c4.firebasestorage.app",
-  appId: "1:322809583693:web:6a55a675b0a8296013e404",
-  messagingSenderId: "322809583693",
-  measurementId: "G-Z0YEL2RB17",
+  apiKey: import.meta.env.VITE_API_KEY,
+  authDomain: import.meta.env.VITE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_APP_ID,
+  measurementId: import.meta.env.VITE_MEASUREMENT_ID,
 };
-
 
 export const firebaseApp = initializeApp(FIREBASE_CONFIG);
 export const firebaseFirestore = getFirestore(firebaseApp);
