@@ -27,7 +27,7 @@ Abaixo, algumas das principais funcionalidades do sistema, ilustradas com screen
 
 | GIF/Imagem | Descrição Detalhada |
 | :---: | --- |
-| ![Demonstração](./src/preview/pdv.gif) | **Ponto de Venda (PDV) Inteligente e Rápido:** Um fluxo de venda otimizado que permite adicionar produtos ao carrinho, ajustar quantidades, selecionar clientes e escolher múltiplos métodos de pagamento, incluindo "Fiado" (venda a prazo). O estoque dos produtos é atualizado em tempo real a cada venda finalizada. |
+| ![Demonstração](./preview/pdv.gif) | **Ponto de Venda (PDV) Inteligente e Rápido:** Um fluxo de venda otimizado que permite adicionar produtos ao carrinho, ajustar quantidades, selecionar clientes e escolher múltiplos métodos de pagamento, incluindo "Fiado" (venda a prazo). O estoque dos produtos é atualizado em tempo real a cada venda finalizada. |
 | _[INSIRA AQUI UM GIF GERANDO UM ORÇAMENTO]_ | **Gerador de Orçamentos Profissionais em PDF:** Uma ferramenta que permite criar orçamentos personalizados para clientes, adicionando produtos, definindo condições comerciais e gerando um documento PDF profissional com um clique, utilizando a biblioteca `pdfmake`. |
 | _[INSIRA AQUI UM GIF NAVEGANDO NOS RELATÓRIOS]_ | **Relatórios Gerenciais Dinâmicos:** Painel de relatórios completo com filtros por período para análise de vendas, despesas, lucratividade por produto e performance de clientes. Os dados podem ser exportados para planilhas XLSX para análises mais aprofundadas. |
 | _[INSIRA AQUI UMA SCREENSHOT DO DASHBOARD]_ | **Dashboard Principal com Indicadores Chave:** A tela inicial apresenta um resumo diário das métricas mais importantes do negócio: total de vendas, clientes atendidos, produtos com estoque baixo e o valor total a receber de clientes. |
